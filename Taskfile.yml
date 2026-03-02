@@ -1,0 +1,38 @@
+version: '3'
+
+tasks:
+  id: # from install-dev
+    desc: Install all dependencies (including dev)
+    cmds:
+      - uv sync --all-extras
+
+  i: # from install
+    desc: Install production dependencies only
+    cmds:
+      - uv sync
+
+  pc: # from proto-compile
+    desc: Compile proto files from cve-gRPC
+    cmds:
+      - ./scripts/proto_compile.sh
+
+  collect:
+    desc: "Trigger a one-off CVE collection (requires --since=<date>)"
+    cmds:
+      - uv run python -m src.cli.main collect {{.CLI_ARGS}}
+
+  schedule:
+    desc: "Manage Temporal Schedules (e.g. task schedule -- create --cron '0 6 * * *')"
+    cmds:
+      - uv run python -m src.cli.main schedule {{.CLI_ARGS}}
+
+  ut: # from unit-tests
+    desc: Run unit tests
+    cmds:
+      - uv run pytest tests/ -v
+
+  l: # from linters
+    desc: Format and type-check
+    cmds:
+      - uv run ruff format src/ tests/
+      - uv run mypy src/

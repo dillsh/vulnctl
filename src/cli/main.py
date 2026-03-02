@@ -1,0 +1,246 @@
+"""
+vulnctl CLI — entry point for all commands.
+
+Usage:
+    uv run python -m src.cli.main collect --since 2026-01-01
+    uv run python -m src.cli.main schedule create --cron "0 6 * * *"
+    uv run python -m src.cli.main schedule list
+    uv run python -m src.cli.main schedule delete daily-cve-collection
+    uv run python -m src.cli.main cve list --since 2026-01-01
+    uv run python -m src.cli.main cve list --since 2026-01-01 --until 2026-03-02
+"""
+
+import asyncio
+import logging
+from typing import Optional
+
+import typer
+from rich.console import Console
+from rich.table import Table
+
+from src.config import settings
+
+console = Console()
+error_console = Console(stderr=True)
+
+app = typer.Typer(
+    name="vulnctl",
+    help="Vulnerability control CLI — trigger CVE collection and manage schedules.",
+    no_args_is_help=True,
+)
+
+schedule_app = typer.Typer(
+    help="Manage Temporal Schedules for recurring CVE collection.",
+    no_args_is_help=True,
+)
+app.add_typer(schedule_app, name="schedule")
+
+cve_app = typer.Typer(
+    help="Query CVEs from cve-core.",
+    no_args_is_help=True,
+)
+app.add_typer(cve_app, name="cve")
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+async def _create_temporal_client():
+    """Connect to Temporal with the proto-aware payload converter."""
+    from temporalio.client import Client
+    from temporalio.converter import (
+        BinaryNullPayloadConverter,
+        DefaultPayloadConverter,
+        JSONPlainPayloadConverter,
+        JSONProtoPayloadConverter,
+    )
+
+    DefaultPayloadConverter.default_encoding_payload_converters = (
+        BinaryNullPayloadConverter(),
+        JSONProtoPayloadConverter(),
+        JSONPlainPayloadConverter(),
+    )
+    return await Client.connect(f"{settings.temporal_host}:{settings.temporal_port}")
+
+
+# ---------------------------------------------------------------------------
+# collect
+# ---------------------------------------------------------------------------
+
+@app.command()
+def collect(
+    since: str = typer.Option(..., help="Start date (ISO 8601), e.g. 2024-01-01"),
+    until: Optional[str] = typer.Option(None, help="End date (ISO 8601), e.g. 2024-01-31"),
+) -> None:
+    """Trigger a one-off CVE collection run via cve-collector."""
+    asyncio.run(_collect(since, until))
+
+
+async def _collect(since: str, until: Optional[str]) -> None:
+    from src.adapters.grpc_collector import GrpcCollectorAdapter
+    from src.core.use_cases import TriggerCollection
+
+    adapter = GrpcCollectorAdapter(address=settings.collector_grpc_address)
+    use_case = TriggerCollection(collector=adapter)
+
+    try:
+        result = await use_case.execute(since=since, until=until)
+        console.print(f"[green]✓[/green] Workflow started: [bold]{result.workflow_id}[/bold]")
+    except Exception as e:
+        error_console.print(f"[red]✗[/red] Failed to trigger collection: {e}")
+        raise typer.Exit(1)
+
+
+# ---------------------------------------------------------------------------
+# schedule create
+# ---------------------------------------------------------------------------
+
+@schedule_app.command("create")
+def schedule_create(
+    schedule_id: str = typer.Option(
+        "daily-cve-collection",
+        help="Unique schedule ID in Temporal",
+    ),
+    cron: str = typer.Option(
+        "0 6 * * *",
+        help="Cron expression (UTC), e.g. '0 6 * * *' for 06:00 daily",
+    ),
+    lookback_days: int = typer.Option(
+        1,
+        help="Days to look back when building the collection window start_time",
+    ),
+) -> None:
+    """Create a recurring CVE collection schedule in Temporal."""
+    asyncio.run(_schedule_create(schedule_id, cron, lookback_days))
+
+
+async def _schedule_create(schedule_id: str, cron: str, lookback_days: int) -> None:
+    from src.adapters.temporal_scheduler import TemporalSchedulerAdapter
+    from src.core.use_cases import ManageSchedule
+
+    client = await _create_temporal_client()
+    use_case = ManageSchedule(scheduler=TemporalSchedulerAdapter(client=client))
+
+    try:
+        await use_case.create(schedule_id=schedule_id, cron=cron, lookback_days=lookback_days)
+        console.print(
+            f"[green]✓[/green] Schedule [bold]{schedule_id}[/bold] created  (cron: {cron})"
+        )
+    except Exception as e:
+        error_console.print(f"[red]✗[/red] Failed to create schedule: {e}")
+        raise typer.Exit(1)
+
+
+# ---------------------------------------------------------------------------
+# schedule list
+# ---------------------------------------------------------------------------
+
+@schedule_app.command("list")
+def schedule_list() -> None:
+    """List all active CVE collection schedules in Temporal."""
+    asyncio.run(_schedule_list())
+
+
+async def _schedule_list() -> None:
+    from src.adapters.temporal_scheduler import TemporalSchedulerAdapter
+    from src.core.use_cases import ManageSchedule
+
+    client = await _create_temporal_client()
+    use_case = ManageSchedule(scheduler=TemporalSchedulerAdapter(client=client))
+
+    try:
+        schedules = await use_case.list()
+    except Exception as e:
+        error_console.print(f"[red]✗[/red] Failed to list schedules: {e}")
+        raise typer.Exit(1)
+
+    if not schedules:
+        console.print("[yellow]No schedules found.[/yellow]")
+        return
+
+    table = Table("ID", "Cron", "Next Run (UTC)")
+    for s in schedules:
+        table.add_row(s.schedule_id, s.cron, s.next_run or "—")
+    console.print(table)
+
+
+# ---------------------------------------------------------------------------
+# schedule delete
+# ---------------------------------------------------------------------------
+
+@schedule_app.command("delete")
+def schedule_delete(
+    schedule_id: str = typer.Argument(help="Schedule ID to delete"),
+) -> None:
+    """Delete a CVE collection schedule from Temporal."""
+    asyncio.run(_schedule_delete(schedule_id))
+
+
+async def _schedule_delete(schedule_id: str) -> None:
+    from src.adapters.temporal_scheduler import TemporalSchedulerAdapter
+    from src.core.use_cases import ManageSchedule
+
+    client = await _create_temporal_client()
+    use_case = ManageSchedule(scheduler=TemporalSchedulerAdapter(client=client))
+
+    try:
+        await use_case.delete(schedule_id=schedule_id)
+        console.print(f"[green]✓[/green] Schedule [bold]{schedule_id}[/bold] deleted.")
+    except Exception as e:
+        error_console.print(f"[red]✗[/red] Failed to delete schedule: {e}")
+        raise typer.Exit(1)
+
+
+# ---------------------------------------------------------------------------
+# cve list
+# ---------------------------------------------------------------------------
+
+@cve_app.command("list")
+def cve_list(
+    since: str = typer.Option(..., "--since", help='Start date (ISO 8601), e.g. "2024-01-01"'),
+    until: Optional[str] = typer.Option(None, "--until", help='End date (ISO 8601), e.g. "2024-06-01"'),
+) -> None:
+    """List CVEs from cve-core updated within the given date range."""
+    asyncio.run(_cve_list(since, until))
+
+
+async def _cve_list(since: str, until: Optional[str]) -> None:
+    from src.adapters.grpc_cve_store import GrpcCVEStoreAdapter
+    from src.core.use_cases import ListCVEs
+
+    adapter = GrpcCVEStoreAdapter(address=settings.cve_core_grpc_address)
+    try:
+        cves = await ListCVEs(store=adapter).execute(since=since, until=until)
+    except Exception as e:
+        error_console.print(f"[red]✗[/red] Failed to list CVEs: {e}")
+        raise typer.Exit(1)
+
+    if not cves:
+        console.print("[yellow]No CVEs found.[/yellow]")
+        return
+
+    table = Table("CVE ID", "Status", "Title", "Vendor", "Product", "Date Updated")
+    for cve in cves:
+        date_str = cve.date_updated.strftime("%Y-%m-%d %H:%M UTC") if cve.date_updated else "—"
+        table.add_row(
+            cve.cve_id,
+            cve.status,
+            cve.title or "—",
+            cve.vendor or "—",
+            cve.product or "—",
+            date_str,
+        )
+    console.print(table)
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    logging.basicConfig(
+        level=settings.log_level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+    app()
