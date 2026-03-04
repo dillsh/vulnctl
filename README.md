@@ -120,7 +120,7 @@ vulnctl cve list --since 2024-01-01 --until 2024-06-30
 | `--since` | Yes | Start date (ISO 8601) — lower bound on `date_updated` |
 | `--until` | No | End date (ISO 8601) — upper bound on `date_updated` |
 
-Outputs a table: CVE ID, Status, Title, Vendor, Product, Date Updated.
+Outputs a table: CVE ID, Status, Title, Affected (list of (vendor, product)), Date Updated.
 
 ---
 

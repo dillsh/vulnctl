@@ -220,15 +220,18 @@ async def _cve_list(since: str, until: Optional[str]) -> None:
         console.print("[yellow]No CVEs found.[/yellow]")
         return
 
-    table = Table("CVE ID", "Status", "Title", "Vendor", "Product", "Date Updated")
+    table = Table("CVE ID", "Status", "Title", "Affected", "Date Updated")
     for cve in cves:
         date_str = cve.date_updated.strftime("%Y-%m-%d %H:%M UTC") if cve.date_updated else "—"
+        affected_str = (
+            ", ".join(f"{a.vendor}/{a.product}" for a in cve.affected)
+            if cve.affected else "—"
+        )
         table.add_row(
             cve.cve_id,
             cve.status,
             cve.title or "—",
-            cve.vendor or "—",
-            cve.product or "—",
+            affected_str,
             date_str,
         )
     console.print(table)

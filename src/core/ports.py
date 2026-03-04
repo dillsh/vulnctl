@@ -42,14 +42,20 @@ class CollectorPort(Protocol):
 
 
 @dataclass
+class AffectedInfo:
+    """A single affected vendor/product pair."""
+    vendor: str
+    product: str
+
+
+@dataclass
 class CVEInfo:
     """A CVE summary returned by the CVE store."""
     cve_id: str
     status: str
     title: str
-    vendor: str
-    product: str
     date_updated: Optional[datetime]
+    affected: Optional[list[AffectedInfo]] = None
 
 
 class CVEStorePort(Protocol):

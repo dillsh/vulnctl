@@ -12,7 +12,7 @@ from google.protobuf.timestamp_pb2 import Timestamp
 
 from src.contracts.gRPC.compiled.cve.v1.message_pb2 import ListCVEsRequest
 from src.contracts.gRPC.compiled.cve.v1.service_pb2_grpc import CVEServiceServicerStub
-from src.core.ports import CVEInfo
+from src.core.ports import CVEInfo, AffectedInfo
 
 
 class GrpcCVEStoreAdapter:
@@ -59,9 +59,11 @@ class GrpcCVEStoreAdapter:
             CVEInfo(
                 cve_id=cve.cve_id,
                 status=cve.status,
-                title=cve.title,
-                vendor=cve.vendor,
-                product=cve.product,
+                title=cve.title or None,
+                affected=(
+                    [AffectedInfo(vendor=a.vendor, product=a.product) for a in cve.affected]
+                    or None
+                ),
                 date_updated=(
                     cve.date_updated.ToDatetime(tzinfo=timezone.utc)
                     if cve.HasField("date_updated") else None

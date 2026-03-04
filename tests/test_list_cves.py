@@ -9,7 +9,7 @@ from typing import Optional
 
 import pytest
 
-from src.core.ports import CVEInfo, CVEStorePort
+from src.core.ports import AffectedInfo, CVEInfo, CVEStorePort
 from src.core.use_cases import ListCVEs
 
 
@@ -22,8 +22,7 @@ def _make_cve(cve_id: str = "CVE-2024-0001") -> CVEInfo:
         cve_id=cve_id,
         status="PUBLISHED",
         title="Test vulnerability",
-        vendor="test-vendor",
-        product="test-product",
+        affected=[AffectedInfo(vendor="test-vendor", product="test-product")],
         date_updated=datetime(2024, 3, 1, 12, 0, tzinfo=timezone.utc),
     )
 
