@@ -3,7 +3,26 @@ CLI tool for triggering CVE collection and querying stored vulnerabilities.
 The part of the bunch of CVE services, see [cve-services](https://github.com/dillsh/cve-project).
 
 
-## Configuration
+
+
+## Getting Started
+
+### Docker (recommended)
+
+vulnctl is built as part of the Docker Compose stack in [cve-project](https://github.com/dillsh/cve-project) under the `cli` profile. Run commands via `docker-compose run`:
+
+```bash
+# from cve-project/
+docker-compose run --rm vulnctl collect --since 2024-01-01
+docker-compose run --rm vulnctl cve list --since 2024-01-01
+docker-compose run --rm vulnctl --help
+```
+
+The `--rm` flag removes the container after each run, since vulnctl is a one-shot CLI tool.
+
+### Local Development
+
+#### 0. Configuration
 
 All settings are loaded from environment variables (or a `.env` file).
 
@@ -19,14 +38,7 @@ All settings are loaded from environment variables (or a `.env` file).
 | `LOG_LEVEL` | `INFO` | Logging level |
 | `ENVIRONMENT` | `development` | `development` / `staging` / `production` / `test` |
 
----
-
-## Getting Started
-
-### 0. Before start here
-Follow the instructions in [main project description](https://github.com/dillsh/cve-project).
-
-### 1. Install uv (Python package manager)
+#### 1. Install uv (Python package manager)
 ```
 # macOS / Linux
 curl -Ls https://astral.sh/uv/install.sh | sh
@@ -35,18 +47,12 @@ curl -Ls https://astral.sh/uv/install.sh | sh
 powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-### 2. Install dependencies
+#### 2. Install dependencies
 ```bash
 uv sync --all-extras
 ```
 
-### 3. Configure environment
-```bash
-cp .env.example .env
-# edit .env with your Temporal and gRPC addresses
-```
-
-### 4. Run a command
+#### 3. Run a command
 ```bash
 uv run python -m src.cli.main --help
 ```
