@@ -31,6 +31,9 @@ class Settings(BaseSettings):
         description="Temporal task queue of the cve-collector worker",
     )
 
+    # Auth settings
+    api_key: str = Field(default="", description="API key for cve-core gRPC (env: VULNCTL_API_KEY)")
+
     # Application settings
     service_name: str = Field(default="vulnctl", description="Service name")
     log_level: str = Field(default="INFO", description="Logging level")

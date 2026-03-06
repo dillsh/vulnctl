@@ -18,12 +18,14 @@ from src.core.ports import CVEInfo, AffectedInfo
 class GrpcCVEStoreAdapter:
     """CVEStorePort implementation that queries cve-core over gRPC."""
 
-    def __init__(self, address: str) -> None:
+    def __init__(self, address: str, api_key: str = "") -> None:
         """
         Args:
             address: cve-core gRPC address, e.g. "localhost:50051".
+            api_key: API key sent as x-api-key metadata.
         """
         self._address = address
+        self._api_key = api_key
 
     async def list(
         self,
@@ -53,7 +55,7 @@ class GrpcCVEStoreAdapter:
 
         async with grpc.aio.insecure_channel(self._address) as channel:
             stub = CVEServiceServicerStub(channel)
-            response = await stub.ListCVEs(request)
+            response = await stub.ListCVEs(request, metadata=[("x-api-key", self._api_key)])
 
         return [
             CVEInfo(

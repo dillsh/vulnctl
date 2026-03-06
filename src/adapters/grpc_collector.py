@@ -15,12 +15,14 @@ from src.core.ports import CollectionResult
 class GrpcCollectorAdapter:
     """CollectorPort implementation that calls cve-collector over gRPC."""
 
-    def __init__(self, address: str) -> None:
+    def __init__(self, address: str, api_key: str = "") -> None:
         """
         Args:
             address: cve-collector gRPC address, e.g. "localhost:50052".
+            api_key: API key sent as x-api-key metadata.
         """
         self._address = address
+        self._api_key = api_key
 
     async def trigger(self, start_time: int, end_time: int) -> CollectionResult:
         """
@@ -41,6 +43,6 @@ class GrpcCollectorAdapter:
 
         async with grpc.aio.insecure_channel(self._address) as channel:
             stub = CVECollectorServicerStub(channel)
-            response = await stub.CollectCVEs(request)
+            response = await stub.CollectCVEs(request, metadata=[("x-api-key", self._api_key)])
 
         return CollectionResult(workflow_id=response.workflow_id)

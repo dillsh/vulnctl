@@ -2,12 +2,16 @@
 vulnctl CLI — entry point for all commands.
 
 Usage:
+
+user mode:
+    uv run python -m src.cli.main cve list --since 2026-01-01
+    uv run python -m src.cli.main cve list --since 2026-01-01 --until 2026-03-02
+
+admin mode (requires API key):
     uv run python -m src.cli.main collect --since 2026-01-01
     uv run python -m src.cli.main schedule create --cron "0 6 * * *"
     uv run python -m src.cli.main schedule list
     uv run python -m src.cli.main schedule delete daily-cve-collection
-    uv run python -m src.cli.main cve list --since 2026-01-01
-    uv run python -m src.cli.main cve list --since 2026-01-01 --until 2026-03-02
 """
 
 import asyncio
@@ -81,7 +85,7 @@ async def _collect(since: str, until: Optional[str]) -> None:
     from src.adapters.grpc_collector import GrpcCollectorAdapter
     from src.core.use_cases import TriggerCollection
 
-    adapter = GrpcCollectorAdapter(address=settings.collector_grpc_address)
+    adapter = GrpcCollectorAdapter(address=settings.collector_grpc_address, api_key=settings.api_key)
     use_case = TriggerCollection(collector=adapter)
 
     try:
@@ -209,7 +213,7 @@ async def _cve_list(since: str, until: Optional[str]) -> None:
     from src.adapters.grpc_cve_store import GrpcCVEStoreAdapter
     from src.core.use_cases import ListCVEs
 
-    adapter = GrpcCVEStoreAdapter(address=settings.cve_core_grpc_address)
+    adapter = GrpcCVEStoreAdapter(address=settings.cve_core_grpc_address, api_key=settings.api_key)
     try:
         cves = await ListCVEs(store=adapter).execute(since=since, until=until)
     except Exception as e:
