@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     )
 
     # Auth settings
-    api_key: str = Field(default="", description="API key for cve-core gRPC (env: VULNCTL_API_KEY)")
+    api_key: str = Field(default="", description="API key for gRPC calls (env: API_KEY)")
 
     # Application settings
     service_name: str = Field(default="vulnctl", description="Service name")

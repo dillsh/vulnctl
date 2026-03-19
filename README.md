@@ -7,13 +7,13 @@ The part of the bunch of CVE services, see [cve-services](https://github.com/dil
 
 ### Docker (recommended)
 
-vulnctl is built as part of the Docker Compose stack in [cve-project](https://github.com/dillsh/cve-project) under the `cli` profile. Run commands via `docker-compose run`:
+vulnctl is built as part of the Docker Compose stack in [cve-project](https://github.com/dillsh/cve-project) under the `cli` profile. Run commands via `docker compose run`:
 
 ```bash
 # from cve-project/
-docker-compose run --rm vulnctl collect --since 2024-01-01
-docker-compose run --rm vulnctl cve list --since 2024-01-01
-docker-compose run --rm vulnctl --help
+docker compose run --rm vulnctl collect --since 2024-01-01
+docker compose run --rm vulnctl cve list --since 2024-01-01
+docker compose run --rm vulnctl --help
 ```
 
 The `--rm` flag removes the container after each run, since vulnctl is a one-shot CLI tool.
@@ -33,7 +33,7 @@ All settings are loaded from environment variables (or a `.env` file).
 | `CVE_CORE_GRPC_HOST` | `localhost` | cve-core gRPC host |
 | `CVE_CORE_GRPC_PORT` | `50051` | cve-core gRPC port |
 | `COLLECTOR_TASK_QUEUE` | `cve-collector` | Temporal task queue of the cve-collector worker |
-| `VULNCTL_API_KEY` | `""` | API key sent to gRPC services — use admin key for full access, reader key for read-only |
+| `API_KEY` | `""` | Admin API key sent to gRPC services |
 | `LOG_LEVEL` | `INFO` | Logging level |
 | `ENVIRONMENT` | `development` | `development` / `staging` / `production` / `test` |
 
@@ -68,29 +68,25 @@ uv run pytest tests/
 
 ## Access Levels
 
-vulnctl commands require an API key (`VULNCTL_API_KEY`) matching the role:
+All commands require an `API_KEY` matching the admin key configured in cve-core.
 
-| Role | Key | Commands available |
-|------|-----|--------------------|
-| **admin** | `API_KEY_ADMIN` from cve-project | All commands |
-
-**Admin** — runs on the server (SSH) or locally with internal access:
+**Admin** — full access (collect, schedule, cve list). Typically runs on the server (SSH) or locally with internal network access:
 ```bash
-export VULNCTL_API_KEY=<admin-key>
+export API_KEY=<admin-key>
 export CVE_CORE_GRPC_HOST=localhost
 vulnctl collect --since 2024-01-01
 vulnctl schedule create --cron "0 6 * * *"
 vulnctl cve list --since 2024-01-01
 ```
 
-**Reader** — runs from any machine with access to the public cve-core port (50051):
+**User (read-only)** — `cve list` only, no API key required. Can run from any machine with access to the cve-core port:
 ```bash
 export CVE_CORE_GRPC_HOST=<server-ip>
-vulnctl cve list --since 2024-01-01   # ✓ works
-vulnctl collect ...                    # ✗ connection refused (port not public)
+uv run python -m src.cli.main cve list --since 2026-01-01
+uv run python -m src.cli.main cve list --since 2026-01-01 --until 2026-03-02
 ```
 
-Without a key or with a wrong key: `UNAUTHENTICATED`.
+Admin commands without a key or with a wrong key: `UNAUTHENTICATED`.
 
 ---
 
