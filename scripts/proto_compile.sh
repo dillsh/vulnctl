@@ -7,7 +7,7 @@ set -eu
 
 ROOT_DIR=$(pwd)
 export PYTHON_PACKAGE_NAME=src.contracts.gRPC.compiled
-POINT=${POINT:-"v4.0.0"}
+POINT=${POINT:-"v4.1.0"}
 
 PROTO_DIR=src/contracts/gRPC
 REPO_NAME=cve-gRPC

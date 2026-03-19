@@ -110,14 +110,15 @@ vulnctl collect --since 2024-01-01 --until 2024-06-30
 
 #### `schedule create`
 ```bash
-vulnctl schedule create --schedule-id daily-cve-collection --cron "0 6 * * *" --lookback-days 1
+vulnctl schedule create --schedule-id daily-cve-collection --cron "0 6 * * *"
 ```
 
 | Option | Default | Description |
 |---|---|---|
 | `--schedule-id` | `daily-cve-collection` | Unique schedule ID in Temporal |
 | `--cron` | `0 6 * * *` | Cron expression (UTC) |
-| `--lookback-days` | `1` | Days to look back when building the collection window |
+
+Each run automatically picks up from where the last successful run ended (stored in cve-core as a checkpoint), so no manual time window configuration is needed.
 
 #### `schedule list`
 ```bash

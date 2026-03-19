@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from src.contracts.gRPC.compiled.cve.v1 import message_pb2 as cve_dot_v1_dot_message__pb2
+from src.contracts.gRPC.cve.v1 import message_pb2 as cve_dot_v1_dot_message__pb2
 
 GRPC_GENERATED_VERSION = '1.78.1'
 GRPC_VERSION = grpc.__version__

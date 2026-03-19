@@ -85,12 +85,11 @@ class ManageSchedule:
     def __init__(self, scheduler: SchedulerPort) -> None:
         self._scheduler = scheduler
 
-    async def create(self, schedule_id: str, cron: str, lookback_days: int) -> None:
+    async def create(self, schedule_id: str, cron: str) -> None:
         """Create a recurring schedule in Temporal."""
         await self._scheduler.create(
             schedule_id=schedule_id,
             cron=cron,
-            lookback_days=lookback_days,
         )
 
     async def list(self) -> list[ScheduleInfo]:

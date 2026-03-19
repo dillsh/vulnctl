@@ -22,7 +22,7 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-from src.contracts.gRPC.compiled.cve.v1 import message_pb2 as cve_dot_v1_dot_message__pb2
+from src.contracts.gRPC.cve.v1 import message_pb2 as cve_dot_v1_dot_message__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x63ve/v1/service.proto\x12\x06\x63ve.v1\x1a\x14\x63ve/v1/message.proto2\xb5\x02\n\x12\x43VEServiceServicer\x12\x44\n\x0bRegisterCVE\x12\x19.cve.v1.AddEntriesRequest\x1a\x1a.cve.v1.AddEntriesResponse\x12=\n\x08ListCVEs\x12\x17.cve.v1.ListCVEsRequest\x1a\x18.cve.v1.ListCVEsResponse\x12L\n\rGetCheckpoint\x12\x1c.cve.v1.GetCheckpointRequest\x1a\x1d.cve.v1.GetCheckpointResponse\x12L\n\rSetCheckpoint\x12\x1c.cve.v1.SetCheckpointRequest\x1a\x1d.cve.v1.SetCheckpointResponse2^\n\x14\x43VECollectorServicer\x12\x46\n\x0b\x43ollectCVEs\x12\x1a.cve.v1.CollectCVEsRequest\x1a\x1b.cve.v1.CollectCVEsResponseb\x06proto3')

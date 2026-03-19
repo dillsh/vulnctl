@@ -82,7 +82,7 @@ class CVEStorePort(Protocol):
 class SchedulerPort(Protocol):
     """Interface for managing Temporal Schedules."""
 
-    async def create(self, schedule_id: str, cron: str, lookback_days: int) -> None:
+    async def create(self, schedule_id: str, cron: str) -> None:
         """Create a new recurring schedule."""
         ...
 

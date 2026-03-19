@@ -5,9 +5,6 @@ Creates / lists / deletes Temporal Schedules that periodically trigger
 CVECollectorWorkflow on the cve-collector task queue.
 """
 
-from datetime import datetime, timedelta, timezone
-
-from google.protobuf.timestamp_pb2 import Timestamp
 from temporalio.client import (
     Client,
     Schedule,
@@ -28,30 +25,24 @@ class TemporalSchedulerAdapter:
     def __init__(self, client: Client) -> None:
         self._client = client
 
-    async def create(self, schedule_id: str, cron: str, lookback_days: int) -> None:
+    async def create(self, schedule_id: str, cron: str) -> None:
         """
         Create a Temporal Schedule that starts CVECollectorWorkflow on `cron`.
 
-        Each triggered run receives a CollectCVEsRequest with start_time set
-        to `lookback_days` ago (relative to the moment the schedule fires).
-        Because Temporal serialises args at schedule-creation time, we use
-        the current time minus lookback as a representative start_time; the
-        real value is recomputed by cve-collector's workflow on execution.
+        Each triggered run receives an empty CollectCVEsRequest so that
+        cve-collector's activity resolves the collection window via the
+        checkpoint stored in cve-core (start_time=0 → read checkpoint).
 
         Args:
-            schedule_id:   Unique schedule identifier in Temporal.
-            cron:          Standard cron expression (UTC), e.g. "0 6 * * *".
-            lookback_days: Days to look back for the collection window start.
+            schedule_id: Unique schedule identifier in Temporal.
+            cron:        Standard cron expression (UTC), e.g. "0 6 * * *".
         """
-        start_dt = datetime.now(timezone.utc) - timedelta(days=lookback_days)
-        start_ts = Timestamp(seconds=int(start_dt.timestamp()))
-
         await self._client.create_schedule(
             id=schedule_id,
             schedule=Schedule(
                 action=ScheduleActionStartWorkflow(
                     "CVECollectorWorkflow",
-                    args=[CollectCVEsRequest(start_time=start_ts)],
+                    args=[CollectCVEsRequest()],
                     id=f"cve-collect-{schedule_id}",
                     task_queue=settings.collector_task_queue,
                 ),

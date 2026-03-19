@@ -9,7 +9,7 @@ user mode:
 
 admin mode (requires API key):
     uv run python -m src.cli.main collect --since 2026-01-01
-    uv run python -m src.cli.main schedule create --cron "0 6 * * *"
+    uv run python -m src.cli.main schedule create [--cron "0 6 * * *"]
     uv run python -m src.cli.main schedule list
     uv run python -m src.cli.main schedule delete daily-cve-collection
 """
@@ -110,16 +110,12 @@ def schedule_create(
         "0 6 * * *",
         help="Cron expression (UTC), e.g. '0 6 * * *' for 06:00 daily",
     ),
-    lookback_days: int = typer.Option(
-        1,
-        help="Days to look back when building the collection window start_time",
-    ),
 ) -> None:
     """Create a recurring CVE collection schedule in Temporal."""
-    asyncio.run(_schedule_create(schedule_id, cron, lookback_days))
+    asyncio.run(_schedule_create(schedule_id, cron))
 
 
-async def _schedule_create(schedule_id: str, cron: str, lookback_days: int) -> None:
+async def _schedule_create(schedule_id: str, cron: str) -> None:
     from src.adapters.temporal_scheduler import TemporalSchedulerAdapter
     from src.core.use_cases import ManageSchedule
 
@@ -127,7 +123,7 @@ async def _schedule_create(schedule_id: str, cron: str, lookback_days: int) -> N
     use_case = ManageSchedule(scheduler=TemporalSchedulerAdapter(client=client))
 
     try:
-        await use_case.create(schedule_id=schedule_id, cron=cron, lookback_days=lookback_days)
+        await use_case.create(schedule_id=schedule_id, cron=cron)
         console.print(
             f"[green]✓[/green] Schedule [bold]{schedule_id}[/bold] created  (cron: {cron})"
         )
