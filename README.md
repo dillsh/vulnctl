@@ -33,7 +33,7 @@ All settings are loaded from environment variables (or a `.env` file).
 | `CVE_CORE_GRPC_HOST` | `localhost` | cve-core gRPC host |
 | `CVE_CORE_GRPC_PORT` | `50051` | cve-core gRPC port |
 | `COLLECTOR_TASK_QUEUE` | `cve-collector` | Temporal task queue of the cve-collector worker |
-| `API_KEY` | `""` | Admin API key sent to gRPC services |
+| `API_KEY` | `""` | Admin API key — required for `collect` and `schedule` commands; `cve list` works without it |
 | `LOG_LEVEL` | `INFO` | Logging level |
 | `ENVIRONMENT` | `development` | `development` / `staging` / `production` / `test` |
 
@@ -68,9 +68,12 @@ uv run pytest tests/
 
 ## Access Levels
 
-All commands require an `API_KEY` matching the admin key configured in cve-core.
+| Mode | Key | Commands available |
+|------|-----|--------------------|
+| **admin** | `API_KEY` = `API_KEY_ADMIN` from cve-project | All commands |
+| **user** | no key | `cve list` only |
 
-**Admin** — full access (collect, schedule, cve list). Typically runs on the server (SSH) or locally with internal network access:
+**Admin** — runs on the server (SSH) or locally with internal access:
 ```bash
 export API_KEY=<admin-key>
 export CVE_CORE_GRPC_HOST=localhost
@@ -79,14 +82,12 @@ vulnctl schedule create --cron "0 6 * * *"
 vulnctl cve list --since 2024-01-01
 ```
 
-**User (read-only)** — `cve list` only, no API key required. Can run from any machine with access to the cve-core port:
+**User** — runs from any machine with access to the public cve-core port (50051):
 ```bash
 export CVE_CORE_GRPC_HOST=<server-ip>
-uv run python -m src.cli.main cve list --since 2026-01-01
-uv run python -m src.cli.main cve list --since 2026-01-01 --until 2026-03-02
+vulnctl cve list --since 2024-01-01   # ✓ works without key
+vulnctl collect ...                    # ✗ UNAUTHENTICATED
 ```
-
-Admin commands without a key or with a wrong key: `UNAUTHENTICATED`.
 
 ---
 
@@ -118,7 +119,7 @@ vulnctl schedule create --schedule-id daily-cve-collection --cron "0 6 * * *"
 | `--schedule-id` | `daily-cve-collection` | Unique schedule ID in Temporal |
 | `--cron` | `0 6 * * *` | Cron expression (UTC) |
 
-Each run automatically picks up from where the last successful run ended (stored in cve-core as a checkpoint), so no manual time window configuration is needed.
+Each scheduled run uses the checkpoint stored in cve-core to determine the collection window automatically — no manual time range needed.
 
 #### `schedule list`
 ```bash
@@ -137,7 +138,7 @@ vulnctl schedule delete daily-cve-collection
 
 ---
 
-### `cve` — Query CVEs from cve-core _(admin + reader)_
+### `cve` — Query CVEs from cve-core _(no key required)_
 
 #### `cve list`
 ```bash
