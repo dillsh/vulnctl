@@ -30,7 +30,7 @@ vulnctl = "src.cli.main:app"
 [tool.ruff]
 line-length = 88
 target-version = "py312"
-exclude = ["src/contracts/gRPC/compiled"]
+exclude = ["src/contracts/gRPC"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
@@ -40,7 +40,7 @@ ignore = ["E501"]
 python_version = "3.12"
 strict = false
 ignore_missing_imports = true
-exclude = ["src/contracts/gRPC/compiled"]
+exclude = ["src/contracts/gRPC"]
 mypy_path = "."
 explicit_package_bases = true
 
