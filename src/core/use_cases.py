@@ -6,7 +6,14 @@ Each use case accepts a port (interface) in its constructor and calls it.
 
 from datetime import datetime, timezone
 
-from src.core.ports import CVEInfo, CVEStorePort, CollectionResult, CollectorPort, ScheduleInfo, SchedulerPort
+from src.core.ports import (
+    CVEInfo,
+    CVEStorePort,
+    CollectionResult,
+    CollectorPort,
+    ScheduleInfo,
+    SchedulerPort,
+)
 
 
 class TriggerCollection:

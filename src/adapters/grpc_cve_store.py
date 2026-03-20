@@ -55,7 +55,9 @@ class GrpcCVEStoreAdapter:
 
         async with grpc.aio.insecure_channel(self._address) as channel:
             stub = CVEServiceServicerStub(channel)
-            response = await stub.ListCVEs(request, metadata=[("x-api-key", self._api_key)])
+            response = await stub.ListCVEs(
+                request, metadata=[("x-api-key", self._api_key)]
+            )
 
         return [
             CVEInfo(
@@ -63,12 +65,16 @@ class GrpcCVEStoreAdapter:
                 status=cve.status,
                 title=cve.title or None,
                 affected=(
-                    [AffectedInfo(vendor=a.vendor, product=a.product) for a in cve.affected]
+                    [
+                        AffectedInfo(vendor=a.vendor, product=a.product)
+                        for a in cve.affected
+                    ]
                     or None
                 ),
                 date_updated=(
                     cve.date_updated.ToDatetime(tzinfo=timezone.utc)
-                    if cve.HasField("date_updated") else None
+                    if cve.HasField("date_updated")
+                    else None
                 ),
             )
             for cve in response.cves

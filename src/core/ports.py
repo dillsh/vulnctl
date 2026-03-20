@@ -13,12 +13,14 @@ from typing import Optional, Protocol
 @dataclass
 class CollectionResult:
     """Result returned by a triggered CVE collection."""
+
     workflow_id: str
 
 
 @dataclass
 class ScheduleInfo:
     """Summary of a single Temporal Schedule."""
+
     schedule_id: str
     cron: str
     next_run: str | None
@@ -44,6 +46,7 @@ class CollectorPort(Protocol):
 @dataclass
 class AffectedInfo:
     """A single affected vendor/product pair."""
+
     vendor: str
     product: str
 
@@ -51,6 +54,7 @@ class AffectedInfo:
 @dataclass
 class CVEInfo:
     """A CVE summary returned by the CVE store."""
+
     cve_id: str
     status: str
     title: str

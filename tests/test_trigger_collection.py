@@ -14,6 +14,7 @@ from src.core.use_cases import TriggerCollection
 # Mock adapter
 # ---------------------------------------------------------------------------
 
+
 class MockCollectorAdapter:
     """In-memory CollectorPort: captures args and returns a fixed workflow_id."""
 
@@ -32,8 +33,8 @@ class MockCollectorAdapter:
 # Tests
 # ---------------------------------------------------------------------------
 
-class TestTriggerCollection:
 
+class TestTriggerCollection:
     @pytest.mark.asyncio
     async def test_returns_workflow_id(self):
         mock = MockCollectorAdapter(workflow_id="wf-abc")

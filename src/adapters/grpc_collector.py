@@ -43,6 +43,8 @@ class GrpcCollectorAdapter:
 
         async with grpc.aio.insecure_channel(self._address) as channel:
             stub = CVECollectorServicerStub(channel)
-            response = await stub.CollectCVEs(request, metadata=[("x-api-key", self._api_key)])
+            response = await stub.CollectCVEs(
+                request, metadata=[("x-api-key", self._api_key)]
+            )
 
         return CollectionResult(workflow_id=response.workflow_id)

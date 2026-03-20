@@ -18,11 +18,17 @@ class Settings(BaseSettings):
     temporal_port: int = Field(default=7233, description="Temporal server port")
 
     # cve-collector gRPC client settings
-    collector_grpc_host: str = Field(default="localhost", description="cve-collector gRPC host")
-    collector_grpc_port: int = Field(default=50052, description="cve-collector gRPC port")
+    collector_grpc_host: str = Field(
+        default="localhost", description="cve-collector gRPC host"
+    )
+    collector_grpc_port: int = Field(
+        default=50052, description="cve-collector gRPC port"
+    )
 
     # cve-core gRPC client settings
-    cve_core_grpc_host: str = Field(default="localhost", description="cve-core gRPC host")
+    cve_core_grpc_host: str = Field(
+        default="localhost", description="cve-core gRPC host"
+    )
     cve_core_grpc_port: int = Field(default=50051, description="cve-core gRPC port")
 
     # Temporal: task queue where CVECollectorWorkflow is registered
@@ -32,7 +38,9 @@ class Settings(BaseSettings):
     )
 
     # Auth settings
-    api_key: str = Field(default="", description="API key for gRPC calls (env: API_KEY)")
+    api_key: str = Field(
+        default="", description="API key for gRPC calls (env: API_KEY)"
+    )
 
     # Application settings
     service_name: str = Field(default="vulnctl", description="Service name")

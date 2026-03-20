@@ -50,6 +50,7 @@ app.add_typer(cve_app, name="cve")
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 async def _create_temporal_client():
     """Connect to Temporal with the proto-aware payload converter."""
     from temporalio.client import Client
@@ -72,10 +73,13 @@ async def _create_temporal_client():
 # collect
 # ---------------------------------------------------------------------------
 
+
 @app.command()
 def collect(
     since: str = typer.Option(..., help="Start date (ISO 8601), e.g. 2024-01-01"),
-    until: Optional[str] = typer.Option(None, help="End date (ISO 8601), e.g. 2024-01-31"),
+    until: Optional[str] = typer.Option(
+        None, help="End date (ISO 8601), e.g. 2024-01-31"
+    ),
 ) -> None:
     """Trigger a one-off CVE collection run via cve-collector."""
     asyncio.run(_collect(since, until))
@@ -85,12 +89,16 @@ async def _collect(since: str, until: Optional[str]) -> None:
     from src.adapters.grpc_collector import GrpcCollectorAdapter
     from src.core.use_cases import TriggerCollection
 
-    adapter = GrpcCollectorAdapter(address=settings.collector_grpc_address, api_key=settings.api_key)
+    adapter = GrpcCollectorAdapter(
+        address=settings.collector_grpc_address, api_key=settings.api_key
+    )
     use_case = TriggerCollection(collector=adapter)
 
     try:
         result = await use_case.execute(since=since, until=until)
-        console.print(f"[green]✓[/green] Workflow started: [bold]{result.workflow_id}[/bold]")
+        console.print(
+            f"[green]✓[/green] Workflow started: [bold]{result.workflow_id}[/bold]"
+        )
     except Exception as e:
         error_console.print(f"[red]✗[/red] Failed to trigger collection: {e}")
         raise typer.Exit(1)
@@ -99,6 +107,7 @@ async def _collect(since: str, until: Optional[str]) -> None:
 # ---------------------------------------------------------------------------
 # schedule create
 # ---------------------------------------------------------------------------
+
 
 @schedule_app.command("create")
 def schedule_create(
@@ -136,6 +145,7 @@ async def _schedule_create(schedule_id: str, cron: str) -> None:
 # schedule list
 # ---------------------------------------------------------------------------
 
+
 @schedule_app.command("list")
 def schedule_list() -> None:
     """List all active CVE collection schedules in Temporal."""
@@ -169,6 +179,7 @@ async def _schedule_list() -> None:
 # schedule delete
 # ---------------------------------------------------------------------------
 
+
 @schedule_app.command("delete")
 def schedule_delete(
     schedule_id: str = typer.Argument(help="Schedule ID to delete"),
@@ -196,10 +207,15 @@ async def _schedule_delete(schedule_id: str) -> None:
 # cve list
 # ---------------------------------------------------------------------------
 
+
 @cve_app.command("list")
 def cve_list(
-    since: str = typer.Option(..., "--since", help='Start date (ISO 8601), e.g. "2024-01-01"'),
-    until: Optional[str] = typer.Option(None, "--until", help='End date (ISO 8601), e.g. "2024-06-01"'),
+    since: str = typer.Option(
+        ..., "--since", help='Start date (ISO 8601), e.g. "2024-01-01"'
+    ),
+    until: Optional[str] = typer.Option(
+        None, "--until", help='End date (ISO 8601), e.g. "2024-06-01"'
+    ),
 ) -> None:
     """List CVEs from cve-core updated within the given date range."""
     asyncio.run(_cve_list(since, until))
@@ -209,7 +225,9 @@ async def _cve_list(since: str, until: Optional[str]) -> None:
     from src.adapters.grpc_cve_store import GrpcCVEStoreAdapter
     from src.core.use_cases import ListCVEs
 
-    adapter = GrpcCVEStoreAdapter(address=settings.cve_core_grpc_address, api_key=settings.api_key)
+    adapter = GrpcCVEStoreAdapter(
+        address=settings.cve_core_grpc_address, api_key=settings.api_key
+    )
     try:
         cves = await ListCVEs(store=adapter).execute(since=since, until=until)
     except Exception as e:
@@ -222,10 +240,13 @@ async def _cve_list(since: str, until: Optional[str]) -> None:
 
     table = Table("CVE ID", "Status", "Title", "Affected", "Date Updated")
     for cve in cves:
-        date_str = cve.date_updated.strftime("%Y-%m-%d %H:%M UTC") if cve.date_updated else "—"
+        date_str = (
+            cve.date_updated.strftime("%Y-%m-%d %H:%M UTC") if cve.date_updated else "—"
+        )
         affected_str = (
             ", ".join(f"{a.vendor}/{a.product}" for a in cve.affected)
-            if cve.affected else "—"
+            if cve.affected
+            else "—"
         )
         table.add_row(
             cve.cve_id,

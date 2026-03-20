@@ -17,6 +17,7 @@ from src.core.use_cases import ListCVEs
 # Fixtures / helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_cve(cve_id: str = "CVE-2024-0001") -> CVEInfo:
     return CVEInfo(
         cve_id=cve_id,
@@ -30,6 +31,7 @@ def _make_cve(cve_id: str = "CVE-2024-0001") -> CVEInfo:
 # ---------------------------------------------------------------------------
 # Mock adapter
 # ---------------------------------------------------------------------------
+
 
 class MockCVEStoreAdapter:
     """In-memory CVEStorePort: captures args and returns a configurable list."""
@@ -53,8 +55,8 @@ class MockCVEStoreAdapter:
 # Tests
 # ---------------------------------------------------------------------------
 
-class TestListCVEs:
 
+class TestListCVEs:
     @pytest.mark.asyncio
     async def test_since_converted_to_utc_datetime(self):
         mock = MockCVEStoreAdapter()
@@ -107,16 +109,22 @@ class TestListCVEs:
         await ListCVEs(store=mock).execute(since="2024-06-15T10:30:00")
 
         assert mock.captured_start_time.tzinfo == timezone.utc
-        assert mock.captured_start_time == datetime(2024, 6, 15, 10, 30, tzinfo=timezone.utc)
+        assert mock.captured_start_time == datetime(
+            2024, 6, 15, 10, 30, tzinfo=timezone.utc
+        )
 
     @pytest.mark.asyncio
     async def test_naive_until_datetime_gets_utc_tzinfo(self):
         """ISO strings without timezone offset are treated as UTC."""
         mock = MockCVEStoreAdapter()
-        await ListCVEs(store=mock).execute(since="2024-01-01", until="2024-12-31T23:59:59")
+        await ListCVEs(store=mock).execute(
+            since="2024-01-01", until="2024-12-31T23:59:59"
+        )
 
         assert mock.captured_end_time.tzinfo == timezone.utc
-        assert mock.captured_end_time == datetime(2024, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
+        assert mock.captured_end_time == datetime(
+            2024, 12, 31, 23, 59, 59, tzinfo=timezone.utc
+        )
 
     @pytest.mark.asyncio
     async def test_mock_adapter_satisfies_cve_store_port(self):
