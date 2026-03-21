@@ -24,3 +24,4 @@ jobs:
       HETZNER_HOST: ${{ secrets.HETZNER_HOST }}
       HETZNER_USER: ${{ secrets.HETZNER_USER }}
       HETZNER_SSH_KEY: ${{ secrets.HETZNER_SSH_KEY }}
+      HETZNER_PORT: ${{ secrets.HETZNER_PORT }}
