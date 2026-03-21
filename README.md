@@ -155,6 +155,34 @@ Outputs a table: CVE ID, Status, Title, Affected (list of (vendor, product)), Da
 
 ---
 
+## CI/CD
+
+Workflow: `.github/workflows/ci.yml`
+
+| Trigger | Jobs |
+|---|---|
+| Pull request → `main` | lint, type check, docker build, unit tests |
+| Tag `v*` (e.g. `v1.2.3`) | lint, type check, docker build, unit tests → deploy to Hetzner |
+
+Push to `main` without a tag does not trigger any workflow.
+
+Reusable workflow templates: [ci-cd-templates](https://github.com/dillsh/ci-cd-templates)
+
+---
+
+## Checking the version
+
+The image version is baked in as a Docker label at build time. To check which version is deployed:
+
+```bash
+docker image inspect vulnctl --format '{{.Config.Labels.version}}'
+# v1.2.3
+```
+
+Local dev builds (without a tag) return `dev`.
+
+---
+
 ## Tech Stack
 
 | Component | Technology |
