@@ -175,7 +175,7 @@ Reusable workflow templates: [ci-cd-templates](https://github.com/dillsh/ci-cd-t
 The image version is baked in as a Docker label at build time. To check which version is deployed:
 
 ```bash
-docker image inspect vulnctl --format '{{.Config.Labels.version}}'
+docker image inspect cve-project-vulnctl --format '{{.Config.Labels.version}}'
 # v1.2.3
 ```
 
