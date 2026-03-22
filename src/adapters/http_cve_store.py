@@ -39,9 +39,12 @@ class HttpCVEStoreAdapter:
                 affected=[
                     AffectedInfo(vendor=a["vendor"], product=a["product"])
                     for a in (item.get("affected") or [])
-                ] or None,
+                ]
+                or None,
                 date_updated=(
-                    datetime.fromisoformat(item["date_updated"]).replace(tzinfo=timezone.utc)
+                    datetime.fromisoformat(item["date_updated"]).replace(
+                        tzinfo=timezone.utc
+                    )
                     if item.get("date_updated")
                     else None
                 ),
