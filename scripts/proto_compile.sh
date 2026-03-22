@@ -6,15 +6,14 @@
 set -eu
 
 ROOT_DIR=$(pwd)
-export PYTHON_PACKAGE_NAME=src.contracts.gRPC.compiled
-POINT=${POINT:-"v4.1.0"}
+export PYTHON_PACKAGE_NAME=src.contracts.gRPC
+POINT=${POINT:-"v1.0.0"}
 
-PROTO_DIR=src/contracts/gRPC
+OUT_DIR=src/contracts/gRPC
 REPO_NAME=cve-gRPC
-OUT_DIR=$PROTO_DIR/compiled
 mkdir -p "$OUT_DIR"
 
-cd "$PROTO_DIR"
+cd "$OUT_DIR"
 git clone git@github.com:dillsh/$REPO_NAME.git
 cd "$REPO_NAME"
 git fetch --tags
@@ -22,12 +21,12 @@ git switch --detach "$POINT"
 cd "$ROOT_DIR"
 
 uv run python -m grpc_tools.protoc \
-  --proto_path="$PROTO_DIR/$REPO_NAME" \
+  --proto_path="$OUT_DIR/$REPO_NAME" \
   --python_out="$OUT_DIR" \
   --grpc_python_out="$OUT_DIR" \
-  "$PROTO_DIR/$REPO_NAME"/cve/v1/*.proto
+  "$OUT_DIR/$REPO_NAME"/cve/v1/*.proto
 
-rm -rf "${PROTO_DIR:?}/${REPO_NAME:?}"
+rm -rf "${OUT_DIR:?}/${REPO_NAME:?}"
 
 # Fix relative imports to use the full package path
 if [[ "$OSTYPE" == "darwin"* ]]; then

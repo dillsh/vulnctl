@@ -49,6 +49,8 @@ class AffectedInfo:
 
     vendor: str
     product: str
+    version: Optional[str] = None
+    cpe: Optional[list[str]] = None
 
 
 @dataclass

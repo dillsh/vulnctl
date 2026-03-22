@@ -28,6 +28,41 @@ def _make_cve(cve_id: str = "CVE-2024-0001") -> CVEInfo:
     )
 
 
+class TestAffectedInfo:
+    def test_version_and_cpe_default_to_none(self):
+        a = AffectedInfo(vendor="Microsoft", product="Windows")
+        assert a.version is None
+        assert a.cpe is None
+
+    def test_version_and_cpe_can_be_set(self):
+        a = AffectedInfo(
+            vendor="Microsoft",
+            product="Windows",
+            version="10.0",
+            cpe=["cpe:2.3:o:microsoft:windows_10:*"],
+        )
+        assert a.version == "10.0"
+        assert a.cpe == ["cpe:2.3:o:microsoft:windows_10:*"]
+
+    def test_cve_info_preserves_affected_fields(self):
+        affected = AffectedInfo(
+            vendor="Apache",
+            product="Log4j",
+            version="2.14.0",
+            cpe=["cpe:2.3:a:apache:log4j:2.14.0:*", "cpe:2.3:a:apache:log4j:2.15.0:*"],
+        )
+        cve = CVEInfo(
+            cve_id="CVE-2021-44228",
+            status="PUBLISHED",
+            title="Log4Shell",
+            affected=[affected],
+            date_updated=datetime(2024, 1, 1, tzinfo=timezone.utc),
+        )
+        result_affected = cve.affected[0]
+        assert result_affected.version == "2.14.0"
+        assert len(result_affected.cpe) == 2
+
+
 # ---------------------------------------------------------------------------
 # Mock adapter
 # ---------------------------------------------------------------------------
