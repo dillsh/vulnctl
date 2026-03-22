@@ -15,7 +15,7 @@ from temporalio.client import (
 )
 
 from src.config import settings
-from src.contracts.gRPC.compiled.cve.v1.message_pb2 import CollectCVEsRequest
+from src.contracts.gRPC.cve.v1.message_pb2 import CollectCVEsRequest
 from src.core.ports import ScheduleInfo
 
 

@@ -10,8 +10,8 @@ from typing import Optional
 import grpc
 from google.protobuf.timestamp_pb2 import Timestamp
 
-from src.contracts.gRPC.compiled.cve.v1.message_pb2 import ListCVEsRequest
-from src.contracts.gRPC.compiled.cve.v1.service_pb2_grpc import CVEServiceServicerStub
+from src.contracts.gRPC.cve.v1.message_pb2 import ListCVEsRequest
+from src.contracts.gRPC.cve.v1.service_pb2_grpc import CVEServiceServicerStub
 from src.core.ports import CVEInfo, AffectedInfo
 
 
