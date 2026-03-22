@@ -31,6 +31,12 @@ class Settings(BaseSettings):
     )
     cve_core_grpc_port: int = Field(default=50051, description="cve-core gRPC port")
 
+    # cve-core REST client settings
+    cve_core_http_host: str = Field(
+        default="localhost", description="cve-core REST host"
+    )
+    cve_core_http_port: int = Field(default=8080, description="cve-core REST port")
+
     # Temporal: task queue where CVECollectorWorkflow is registered
     collector_task_queue: str = Field(
         default="cve-collector",
@@ -63,6 +69,11 @@ class Settings(BaseSettings):
     def cve_core_grpc_address(self) -> str:
         """cve-core gRPC address."""
         return f"{self.cve_core_grpc_host}:{self.cve_core_grpc_port}"
+
+    @property
+    def cve_core_http_base_url(self) -> str:
+        """cve-core REST base URL."""
+        return f"http://{self.cve_core_http_host}:{self.cve_core_http_port}"
 
     @field_validator("log_level")
     @classmethod

@@ -155,6 +155,30 @@ Outputs a table: CVE ID, Status, Title, Affected (list of (vendor, product)), Da
 
 ---
 
+## Download binary
+
+Standalone binaries are published to [GitHub Releases](https://github.com/dillsh/vulnctl/releases) on every tag.
+No Python or Docker required — just download and run.
+
+| Platform | File |
+|---|---|
+| macOS Apple Silicon | `vulnctl-darwin-arm64` |
+| Linux x86_64 | `vulnctl-linux-amd64` |
+
+```bash
+# macOS
+curl -L https://github.com/dillsh/vulnctl/releases/latest/download/vulnctl-darwin-arm64 -o vulnctl
+chmod +x vulnctl
+
+# Query CVEs:
+./vulnctl cve list --since 2026-01-01
+```
+
+The binary only supports `cve list` (public endpoint, no key required).
+For admin commands (`collect`, `schedule`) use the Docker image via `docker compose run`.
+
+---
+
 ## CI/CD
 
 Workflow: `.github/workflows/ci.yml`
