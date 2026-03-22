@@ -21,7 +21,7 @@ jobs:
       service_name: vulnctl
       version: ${{ github.ref_name }}
     secrets:
-      HETZNER_HOST: ${{ secrets.HETZNER_HOST }}
-      HETZNER_USER: ${{ secrets.HETZNER_USER }}
-      HETZNER_SSH_KEY: ${{ secrets.HETZNER_SSH_KEY }}
-      HETZNER_PORT: ${{ secrets.HETZNER_PORT }}
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      DEPLOY_SSH_PORT: ${{ secrets.DEPLOY_SSH_PORT }}
