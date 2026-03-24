@@ -31,34 +31,27 @@ class GrpcCVEStoreAdapter:
         self,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-        days: Optional[int] = None,
     ) -> list[CVEInfo]:
         """
         Send ListCVEs request to cve-core.
 
-        Pass either start_time (absolute range) or days (relative, server-computed).
-
         Args:
             start_time: Fetch CVEs with date_updated >= this datetime.
             end_time:   Fetch CVEs with date_updated <= this datetime, or None for no upper bound.
-            days:       Relative window in days (1-3); takes priority over start_time/end_time.
 
         Returns:
             List of CVEInfo ordered by date_updated DESC.
         """
         request_kwargs: dict = {}
 
-        if days is not None:
-            request_kwargs["days"] = days
-        else:
-            if start_time is not None:
-                start_ts = Timestamp()
-                start_ts.FromDatetime(start_time)
-                request_kwargs["start_time"] = start_ts
-            if end_time is not None:
-                end_ts = Timestamp()
-                end_ts.FromDatetime(end_time)
-                request_kwargs["end_time"] = end_ts
+        if start_time is not None:
+            start_ts = Timestamp()
+            start_ts.FromDatetime(start_time)
+            request_kwargs["start_time"] = start_ts
+        if end_time is not None:
+            end_ts = Timestamp()
+            end_ts.FromDatetime(end_time)
+            request_kwargs["end_time"] = end_ts
 
         request = ListCVEsRequest(**request_kwargs)
 
@@ -74,7 +67,12 @@ class GrpcCVEStoreAdapter:
                     title=cve.title or None,
                     affected=(
                         [
-                            AffectedInfo(vendor=a.vendor, product=a.product)
+                            AffectedInfo(
+                                vendor=a.vendor,
+                                product=a.product,
+                                version=a.version or None,
+                                cpe=list(a.cpe) or None,
+                            )
                             for a in cve.affected
                         ]
                         or None

@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from src.core.ports import (
     CVEInfo,
     CVEStorePort,
+    RecentCVEStorePort,
     CollectionResult,
     CollectorPort,
     ScheduleInfo,
@@ -88,11 +89,10 @@ class LastCVEs:
     """
     List CVEs from the last N days (1-3).
 
-    Delegates to CVEStorePort with days parameter; the server computes
-    the time window relative to now.
+    Delegates to RecentCVEStorePort; the server computes since = now - days.
     """
 
-    def __init__(self, store: CVEStorePort) -> None:
+    def __init__(self, store: RecentCVEStorePort) -> None:
         self._store = store
 
     async def execute(self, days: int) -> list[CVEInfo]:

@@ -347,10 +347,10 @@ def cve_last(
 
 
 async def _cve_last(days: int, output: Optional[Path]) -> None:
-    from src.adapters.grpc_cve_store import GrpcCVEStoreAdapter
+    from src.adapters.http_cve_store import HttpCVEStoreAdapter
     from src.core.use_cases import LastCVEs
 
-    adapter = GrpcCVEStoreAdapter(address=settings.cve_core_grpc_address)
+    adapter = HttpCVEStoreAdapter(base_url=settings.cve_core_http_base_url)
     try:
         cves = await LastCVEs(store=adapter).execute(days=days)
     except Exception as e:
