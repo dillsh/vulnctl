@@ -40,18 +40,24 @@ chmod +x vulnctl
 ### `cve last` — recent vulnerabilities
 
 ```bash
-vulnctl cve last           # last 24 hours (default)
-vulnctl cve last --days 2  # last 2 days
-vulnctl cve last -d 3      # last 3 days
+vulnctl cve last                          # last 24 hours (default)
+vulnctl cve last --days 3                 # last 3 days
+vulnctl cve last -d 2 -o report.json      # save to JSON
+vulnctl cve last -d 1 -o report.csv       # save to CSV
 ```
 
 | Option | Default | Description |
 |---|---|---|
 | `--days` / `-d` | `1` | Days to look back: `1`, `2`, or `3` |
+| `--output` / `-o` | — | Save to file instead of printing. Format inferred from extension: `.json` or `.csv` |
 
-Output: a table with CVE ID, Status, Title, Affected products, Date Updated.
+Without `--output`: prints a table with CVE ID, Status, Title, Affected products, Date Updated.
 
-Each row in the Affected column is a `vendor/product` pair, optionally with `version` and CPE identifier.
+With `--output`:
+- **`.json`** — array of CVE objects with all fields, including nested `affected` list
+- **`.csv`** — one row per CVE; `affected` column is a flattened `vendor/product:version` string
+
+Each entry in `affected` contains:
 
 ---
 

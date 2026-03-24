@@ -17,7 +17,10 @@ admin mode (requires API key):
 """
 
 import asyncio
+import csv
+import json
 import logging
+from pathlib import Path
 from typing import Optional
 
 import typer
@@ -206,6 +209,63 @@ async def _schedule_delete(schedule_id: str) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Output helpers
+# ---------------------------------------------------------------------------
+
+
+def _cves_to_dicts(cves) -> list[dict]:
+    result = []
+    for cve in cves:
+        result.append(
+            {
+                "cve_id": cve.cve_id,
+                "status": cve.status,
+                "title": cve.title or "",
+                "date_updated": (
+                    cve.date_updated.isoformat() if cve.date_updated else None
+                ),
+                "affected": [
+                    {
+                        "vendor": a.vendor,
+                        "product": a.product,
+                        "version": a.version,
+                        "cpe": a.cpe,
+                    }
+                    for a in (cve.affected or [])
+                ],
+            }
+        )
+    return result
+
+
+def _save_cves(cves, output: Path) -> None:
+    suffix = output.suffix.lower()
+    if suffix == ".json":
+        data = _cves_to_dicts(cves)
+        output.write_text(
+            json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8"
+        )
+    elif suffix == ".csv":
+        rows = _cves_to_dicts(cves)
+        fieldnames = ["cve_id", "status", "title", "date_updated", "affected"]
+        with output.open("w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for row in rows:
+                row["affected"] = "; ".join(
+                    f"{a['vendor']}/{a['product']}"
+                    + (f":{a['version']}" if a["version"] else "")
+                    for a in row["affected"]
+                )
+                writer.writerow(row)
+    else:
+        raise typer.BadParameter(
+            f"Unsupported file extension '{suffix}'. Use .json or .csv",
+            param_hint="--output",
+        )
+
+
+# ---------------------------------------------------------------------------
 # cve list
 # ---------------------------------------------------------------------------
 
@@ -275,12 +335,18 @@ def cve_last(
         max=3,
         help="Number of days to look back (1–3). Default: 1.",
     ),
+    output: Optional[Path] = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Save results to a file instead of printing. Format is inferred from extension: .json or .csv",
+    ),
 ) -> None:
     """Show CVEs from the last N days (1–3). No API key required."""
-    asyncio.run(_cve_last(days))
+    asyncio.run(_cve_last(days, output))
 
 
-async def _cve_last(days: int) -> None:
+async def _cve_last(days: int, output: Optional[Path]) -> None:
     from src.adapters.grpc_cve_store import GrpcCVEStoreAdapter
     from src.core.use_cases import LastCVEs
 
@@ -293,6 +359,19 @@ async def _cve_last(days: int) -> None:
 
     if not cves:
         console.print("[yellow]No CVEs found.[/yellow]")
+        return
+
+    if output:
+        try:
+            _save_cves(cves, output)
+            console.print(
+                f"[green]✓[/green] {len(cves)} CVE(s) saved to [bold]{output}[/bold]"
+            )
+        except typer.BadParameter:
+            raise
+        except Exception as e:
+            error_console.print(f"[red]✗[/red] Failed to write file: {e}")
+            raise typer.Exit(1)
         return
 
     table = Table("CVE ID", "Status", "Title", "Affected", "Date Updated")

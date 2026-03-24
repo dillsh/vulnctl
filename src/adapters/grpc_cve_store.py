@@ -73,7 +73,10 @@ class GrpcCVEStoreAdapter:
                     status=cve.status,
                     title=cve.title or None,
                     affected=(
-                        [AffectedInfo(vendor=a.vendor, product=a.product) for a in cve.affected]
+                        [
+                            AffectedInfo(vendor=a.vendor, product=a.product)
+                            for a in cve.affected
+                        ]
                         or None
                     ),
                     date_updated=(
