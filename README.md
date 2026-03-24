@@ -1,173 +1,22 @@
 # vulnctl
-CLI tool for triggering CVE collection and querying stored vulnerabilities.
-The part of the bunch of CVE services, see [cve-services](https://github.com/dillsh/cve-project).
 
-
-## Getting Started
-
-### Docker (recommended)
-
-vulnctl is built as part of the Docker Compose stack in [cve-project](https://github.com/dillsh/cve-project) under the `cli` profile. Run commands via `docker compose run`:
+CLI tool for monitoring CVE vulnerabilities.
 
 ```bash
-# from cve-project/
-docker compose run --rm vulnctl collect --since 2024-01-01
-docker compose run --rm vulnctl cve list --since 2024-01-01
-docker compose run --rm vulnctl --help
+# See CVEs from the last 24 hours
+./vulnctl cve last
+
+# See CVEs from the last 3 days
+./vulnctl cve last --days 3
 ```
 
-The `--rm` flag removes the container after each run, since vulnctl is a one-shot CLI tool.
-
-### Local Development
-
-#### 0. Configuration
-
-All settings are loaded from environment variables (or a `.env` file).
-
-| Variable | Default | Description |
-|---|---|---|
-| `TEMPORAL_HOST` | `localhost` | Temporal server host |
-| `TEMPORAL_PORT` | `7233` | Temporal server port |
-| `COLLECTOR_GRPC_HOST` | `localhost` | cve-collector gRPC host |
-| `COLLECTOR_GRPC_PORT` | `50052` | cve-collector gRPC port |
-| `CVE_CORE_GRPC_HOST` | `localhost` | cve-core gRPC host |
-| `CVE_CORE_GRPC_PORT` | `50051` | cve-core gRPC port |
-| `COLLECTOR_TASK_QUEUE` | `cve-collector` | Temporal task queue of the cve-collector worker |
-| `API_KEY` | `""` | Admin API key — required for `collect` and `schedule` commands; `cve list` works without it |
-| `LOG_LEVEL` | `INFO` | Logging level |
-| `ENVIRONMENT` | `development` | `development` / `staging` / `production` / `test` |
-
-#### 1. Install uv (Python package manager)
-```
-# macOS / Linux
-curl -Ls https://astral.sh/uv/install.sh | sh
-
-# Windows
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-```
-
-#### 2. Install dependencies
-```bash
-uv sync --all-extras
-```
-
-#### 3. Run a command
-```bash
-uv run python -m src.cli.main --help
-```
+No account, no API key, no Docker required.
 
 ---
 
-## Running Tests
-
-```bash
-uv run pytest tests/
-```
-
----
-
-## Access Levels
-
-| Mode | Key | Commands available |
-|------|-----|--------------------|
-| **admin** | `API_KEY` = `API_KEY_ADMIN` from cve-project | All commands |
-| **user** | no key | `cve list` only |
-
-**Admin** — runs on the server (SSH) or locally with internal access:
-```bash
-export API_KEY=<admin-key>
-export CVE_CORE_GRPC_HOST=localhost
-vulnctl collect --since 2024-01-01
-vulnctl schedule create --cron "0 6 * * *"
-vulnctl cve list --since 2024-01-01
-```
-
-**User** — runs from any machine with access to the public cve-core port (50051):
-```bash
-export CVE_CORE_GRPC_HOST=<server-ip>
-vulnctl cve list --since 2024-01-01   # ✓ works without key
-vulnctl collect ...                    # ✗ UNAUTHENTICATED
-```
-
----
-
-## Commands
-
-### `collect` — Trigger a one-off CVE collection _(admin only)_
-
-```bash
-vulnctl collect --since 2024-01-01
-vulnctl collect --since 2024-01-01 --until 2024-06-30
-```
-
-| Option | Required | Description |
-|---|---|---|
-| `--since` | Yes | Start date (ISO 8601), e.g. `2024-01-01` |
-| `--until` | No | End date (ISO 8601); defaults to open-ended |
-
----
-
-### `schedule` — Manage recurring collection schedules _(admin only)_
-
-#### `schedule create`
-```bash
-vulnctl schedule create --schedule-id daily-cve-collection --cron "0 6 * * *"
-```
-
-| Option | Default | Description |
-|---|---|---|
-| `--schedule-id` | `daily-cve-collection` | Unique schedule ID in Temporal |
-| `--cron` | `0 6 * * *` | Cron expression (UTC) |
-
-Each scheduled run uses the checkpoint stored in cve-core to determine the collection window automatically — no manual time range needed.
-
-#### `schedule list`
-```bash
-vulnctl schedule list
-```
-Lists all active schedules with their ID, cron expression, and next run time.
-
-#### `schedule delete`
-```bash
-vulnctl schedule delete daily-cve-collection
-```
-
-| Argument | Description |
-|---|---|
-| `SCHEDULE_ID` | ID of the schedule to delete |
-
----
-
-### `cve` — Query CVEs from cve-core _(no key required)_
-
-#### `cve list`
-```bash
-vulnctl cve list --since 2024-01-01
-vulnctl cve list --since 2024-01-01 --until 2024-06-30
-```
-
-| Option | Required | Description |
-|---|---|---|
-| `--since` | Yes | Start date (ISO 8601) — lower bound on `date_updated` |
-| `--until` | No | End date (ISO 8601) — upper bound on `date_updated` |
-
-Outputs a table: CVE ID, Status, Title, Affected (list of vendor/product pairs, with optional `version` and `cpe`), Date Updated.
-
-Each entry in `affected` contains:
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `vendor` | string | Vendor name |
-| `product` | string | Product name |
-| `version` | string \| null | Affected version (optional) |
-| `cpe` | string[] \| null | CPE identifiers (optional) |
-
----
-
-## Download binary
+## Install
 
 Standalone binaries are published to [GitHub Releases](https://github.com/dillsh/vulnctl/releases) on every tag.
-No Python or Docker required — just download and run.
 
 | Platform | File |
 |---|---|
@@ -179,33 +28,156 @@ No Python or Docker required — just download and run.
 curl -L https://github.com/dillsh/vulnctl/releases/latest/download/vulnctl-darwin-arm64 -o vulnctl
 chmod +x vulnctl
 
-# Query CVEs:
-./vulnctl cve list --since 2026-01-01
+# Linux
+curl -L https://github.com/dillsh/vulnctl/releases/latest/download/vulnctl-linux-amd64 -o vulnctl
+chmod +x vulnctl
 ```
-
-The binary only supports `cve list` (public endpoint, no key required).
-For admin commands (`collect`, `schedule`) use the Docker image via `docker compose run`.
 
 ---
 
-## CI/CD
+## Commands
+
+### `cve last` — recent vulnerabilities
+
+```bash
+vulnctl cve last           # last 24 hours (default)
+vulnctl cve last --days 2  # last 2 days
+vulnctl cve last -d 3      # last 3 days
+```
+
+| Option | Default | Description |
+|---|---|---|
+| `--days` / `-d` | `1` | Days to look back: `1`, `2`, or `3` |
+
+Output: a table with CVE ID, Status, Title, Affected products, Date Updated.
+
+Each row in the Affected column is a `vendor/product` pair, optionally with `version` and CPE identifier.
+
+---
+
+## Configuration
+
+The binary connects to a hosted cve-core instance by default — no configuration needed.
+
+To point at a custom instance, set environment variables (or a `.env` file):
+
+| Variable | Default | Description |
+|---|---|---|
+| `CVE_CORE_GRPC_HOST` | _(baked in at build time)_ | cve-core gRPC host |
+| `CVE_CORE_GRPC_PORT` | `8080` | cve-core gRPC port |
+
+---
+
+---
+
+## Dev
+
+### Admin commands
+
+Admin commands require an API key and access to internal ports.
+
+#### `cve list` — query by date range
+
+```bash
+vulnctl cve list --since 2024-01-01
+vulnctl cve list --since 2024-01-01 --until 2024-06-30
+```
+
+| Option | Required | Description |
+|---|---|---|
+| `--since` | Yes | Start date (ISO 8601) |
+| `--until` | No | End date (ISO 8601) |
+
+#### `collect` — trigger a one-off CVE collection
+
+```bash
+vulnctl collect --since 2024-01-01
+vulnctl collect --since 2024-01-01 --until 2024-06-30
+```
+
+#### `schedule` — manage recurring collection schedules
+
+```bash
+vulnctl schedule create --schedule-id daily-cve-collection --cron "0 6 * * *"
+vulnctl schedule list
+vulnctl schedule delete daily-cve-collection
+```
+
+Each scheduled run uses the checkpoint stored in cve-core to determine the collection window automatically.
+
+### Running locally
+
+#### 1. Install uv
+
+```bash
+# macOS / Linux
+curl -Ls https://astral.sh/uv/install.sh | sh
+
+# Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+#### 2. Install dependencies
+
+```bash
+uv sync --all-extras
+```
+
+#### 3. Configure
+
+All settings are loaded from environment variables (or a `.env` file).
+
+| Variable | Default | Description |
+|---|---|---|
+| `CVE_CORE_GRPC_HOST` | `localhost` | cve-core gRPC host |
+| `CVE_CORE_GRPC_PORT` | `50051` | cve-core gRPC port |
+| `TEMPORAL_HOST` | `localhost` | Temporal server host |
+| `TEMPORAL_PORT` | `7233` | Temporal server port |
+| `COLLECTOR_GRPC_HOST` | `localhost` | cve-collector gRPC host |
+| `COLLECTOR_GRPC_PORT` | `50052` | cve-collector gRPC port |
+| `COLLECTOR_TASK_QUEUE` | `cve-collector` | Temporal task queue |
+| `API_KEY` | `""` | Admin API key |
+| `LOG_LEVEL` | `INFO` | Logging level |
+| `ENVIRONMENT` | `development` | `development` / `staging` / `production` / `test` |
+
+#### 4. Run
+
+```bash
+uv run python -m src.cli.main --help
+uv run python -m src.cli.main cve last
+```
+
+### Running via Docker
+
+vulnctl is part of the Docker Compose stack in [cve-project](https://github.com/dillsh/cve-project) under the `cli` profile:
+
+```bash
+# from cve-project/
+docker compose run --rm vulnctl cve last
+docker compose run --rm vulnctl collect --since 2024-01-01
+docker compose run --rm vulnctl --help
+```
+
+### Tests
+
+```bash
+uv run pytest tests/
+```
+
+### CI/CD
 
 Workflow: `.github/workflows/ci.yml`
 
 | Trigger | Jobs |
 |---|---|
 | Pull request → `main` | lint, type check, docker build, unit tests |
-| Tag `v*` (e.g. `v1.2.3`) | lint, type check, docker build, unit tests → deploy to Hetzner |
+| Tag `v*` (e.g. `v1.2.3`) | lint, type check, docker build, unit tests → deploy |
 
 Push to `main` without a tag does not trigger any workflow.
 
 Reusable workflow templates: [ci-cd-templates](https://github.com/dillsh/ci-cd-templates)
 
----
-
-## Checking the version
-
-The image version is baked in as a Docker label at build time. To check which version is deployed:
+### Check deployed version
 
 ```bash
 docker image inspect cve-project-vulnctl --format '{{.Config.Labels.version}}'
@@ -214,9 +186,7 @@ docker image inspect cve-project-vulnctl --format '{{.Config.Labels.version}}'
 
 Local dev builds (without a tag) return `dev`.
 
----
-
-## Tech Stack
+### Tech Stack
 
 | Component | Technology |
 |---|---|
@@ -230,5 +200,3 @@ Local dev builds (without a tag) return `dev`.
 | Linting | `ruff` |
 | Type checking | `mypy` |
 | Testing | `pytest`, `pytest-asyncio` |
-
----

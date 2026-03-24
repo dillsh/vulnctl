@@ -69,15 +69,20 @@ class CVEStorePort(Protocol):
 
     async def list(
         self,
-        start_time: datetime,
-        end_time: Optional[datetime],
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        days: Optional[int] = None,
     ) -> list[CVEInfo]:
         """
         Fetch CVEs with date_updated within [start_time, end_time].
 
+        Pass either start_time (and optionally end_time) for an absolute range,
+        or days (1-3) to let the server compute the window relative to now.
+
         Args:
             start_time: Lower bound on date_updated (inclusive).
             end_time:   Upper bound on date_updated (inclusive). None = no upper bound.
+            days:       Relative window in days (1-3); server-computed. Takes priority.
 
         Returns:
             CVEInfo list ordered by date_updated DESC.

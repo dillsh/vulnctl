@@ -84,6 +84,28 @@ class ListCVEs:
         return await self._store.list(start_time=since_dt, end_time=until_dt)
 
 
+class LastCVEs:
+    """
+    List CVEs from the last N days (1-3).
+
+    Delegates to CVEStorePort with days parameter; the server computes
+    the time window relative to now.
+    """
+
+    def __init__(self, store: CVEStorePort) -> None:
+        self._store = store
+
+    async def execute(self, days: int) -> list[CVEInfo]:
+        """
+        Args:
+            days: Number of days to look back (1-3).
+
+        Returns:
+            List of CVEInfo ordered by date_updated DESC.
+        """
+        return await self._store.list(days=days)
+
+
 class ManageSchedule:
     """
     Create, list, and delete recurring CVE collection schedules via Temporal.

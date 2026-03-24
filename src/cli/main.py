@@ -3,11 +3,13 @@ vulnctl CLI — entry point for all commands.
 
 Usage:
 
-user mode:
-    uv run python -m src.cli.main cve list --since 2026-01-01
-    uv run python -m src.cli.main cve list --since 2026-01-01 --until 2026-03-02
+user mode (no API key required):
+    uv run python -m src.cli.main cve last
+    uv run python -m src.cli.main cve last --days 3
 
 admin mode (requires API key):
+    uv run python -m src.cli.main cve list --since 2026-01-01
+    uv run python -m src.cli.main cve list --since 2026-01-01 --until 2026-03-02
     uv run python -m src.cli.main collect --since 2026-01-01
     uv run python -m src.cli.main schedule create [--cron "0 6 * * *"]
     uv run python -m src.cli.main schedule list
@@ -230,6 +232,61 @@ async def _cve_list(since: str, until: Optional[str]) -> None:
     )
     try:
         cves = await ListCVEs(store=adapter).execute(since=since, until=until)
+    except Exception as e:
+        error_console.print(f"[red]✗[/red] Failed to list CVEs: {e}")
+        raise typer.Exit(1)
+
+    if not cves:
+        console.print("[yellow]No CVEs found.[/yellow]")
+        return
+
+    table = Table("CVE ID", "Status", "Title", "Affected", "Date Updated")
+    for cve in cves:
+        date_str = (
+            cve.date_updated.strftime("%Y-%m-%d %H:%M UTC") if cve.date_updated else "—"
+        )
+        affected_str = (
+            ", ".join(f"{a.vendor}/{a.product}" for a in cve.affected)
+            if cve.affected
+            else "—"
+        )
+        table.add_row(
+            cve.cve_id,
+            cve.status,
+            cve.title or "—",
+            affected_str,
+            date_str,
+        )
+    console.print(table)
+
+
+# ---------------------------------------------------------------------------
+# cve last
+# ---------------------------------------------------------------------------
+
+
+@cve_app.command("last")
+def cve_last(
+    days: int = typer.Option(
+        1,
+        "--days",
+        "-d",
+        min=1,
+        max=3,
+        help="Number of days to look back (1–3). Default: 1.",
+    ),
+) -> None:
+    """Show CVEs from the last N days (1–3). No API key required."""
+    asyncio.run(_cve_last(days))
+
+
+async def _cve_last(days: int) -> None:
+    from src.adapters.grpc_cve_store import GrpcCVEStoreAdapter
+    from src.core.use_cases import LastCVEs
+
+    adapter = GrpcCVEStoreAdapter(address=settings.cve_core_grpc_address)
+    try:
+        cves = await LastCVEs(store=adapter).execute(days=days)
     except Exception as e:
         error_console.print(f"[red]✗[/red] Failed to list CVEs: {e}")
         raise typer.Exit(1)

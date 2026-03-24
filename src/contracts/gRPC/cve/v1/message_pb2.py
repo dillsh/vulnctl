@@ -25,15 +25,15 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x63ve/v1/message.proto\x12\x06\x63ve.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"&\n\x14GetCheckpointRequest\x12\x0e\n\x06source\x18\x01 \x01(\t\"Q\n\x15GetCheckpointResponse\x12\x38\n\x14last_collected_until\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"`\n\x14SetCheckpointRequest\x12\x0e\n\x06source\x18\x01 \x01(\t\x12\x38\n\x14last_collected_until\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x17\n\x15SetCheckpointResponse\"r\n\x12\x43ollectCVEsRequest\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"*\n\x13\x43ollectCVEsResponse\x12\x13\n\x0bworkflow_id\x18\x01 \x01(\t\".\n\x11\x41\x64\x64\x45ntriesRequest\x12\x19\n\x04\x63ves\x18\x01 \x03(\x0b\x32\x0b.cve.v1.CVE\"\x14\n\x12\x41\x64\x64\x45ntriesResponse\"o\n\x0fListCVEsRequest\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"-\n\x10ListCVEsResponse\x12\x19\n\x04\x63ves\x18\x01 \x03(\x0b\x32\x0b.cve.v1.CVE\"\xa8\x03\n\x03\x43VE\x12\x0e\n\x06\x63ve_id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\r\n\x05title\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\x12\"\n\x08\x61\x66\x66\x65\x63ted\x18\x05 \x03(\x0b\x32\x10.cve.v1.Affected\x12\x1b\n\x05risks\x18\x06 \x03(\x0b\x32\x0c.cve.v1.Risk\x12#\n\tproviders\x18\x07 \x03(\x0b\x32\x10.cve.v1.Provider\x12\x31\n\rdate_reserved\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x32\n\x0e\x64\x61te_published\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0c\x64\x61te_updated\x18\n \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\ncreated_at\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nupdated_at\x18\x0c \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"I\n\x08\x41\x66\x66\x65\x63ted\x12\x0e\n\x06vendor\x18\x01 \x01(\t\x12\x0f\n\x07product\x18\x02 \x01(\t\x12\x0f\n\x07version\x18\x03 \x01(\t\x12\x0b\n\x03\x63pe\x18\x04 \x03(\t\"@\n\x04Risk\x12)\n\x0c\x63vss_version\x18\x01 \x01(\x0e\x32\x13.cve.v1.CVSSVersion\x12\r\n\x05value\x18\x02 \x01(\x02\"%\n\x08Provider\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0b\n\x03url\x18\x02 \x01(\t*1\n\x0b\x43VSSVersion\x12\x07\n\x03V20\x10\x00\x12\x07\n\x03V30\x10\x01\x12\x07\n\x03V31\x10\x02\x12\x07\n\x03V40\x10\x03\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x63ve/v1/message.proto\x12\x06\x63ve.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"&\n\x14GetCheckpointRequest\x12\x0e\n\x06source\x18\x01 \x01(\t\"Q\n\x15GetCheckpointResponse\x12\x38\n\x14last_collected_until\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"`\n\x14SetCheckpointRequest\x12\x0e\n\x06source\x18\x01 \x01(\t\x12\x38\n\x14last_collected_until\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x17\n\x15SetCheckpointResponse\"r\n\x12\x43ollectCVEsRequest\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"*\n\x13\x43ollectCVEsResponse\x12\x13\n\x0bworkflow_id\x18\x01 \x01(\t\".\n\x11\x41\x64\x64\x45ntriesRequest\x12\x19\n\x04\x63ves\x18\x01 \x03(\x0b\x32\x0b.cve.v1.CVE\"\x14\n\x12\x41\x64\x64\x45ntriesResponse\"}\n\x0fListCVEsRequest\x12.\n\nstart_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08\x65nd_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0c\n\x04\x64\x61ys\x18\x03 \x01(\x05\"-\n\x10ListCVEsResponse\x12\x19\n\x04\x63ves\x18\x01 \x03(\x0b\x32\x0b.cve.v1.CVE\"\xa8\x03\n\x03\x43VE\x12\x0e\n\x06\x63ve_id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\r\n\x05title\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\x12\"\n\x08\x61\x66\x66\x65\x63ted\x18\x05 \x03(\x0b\x32\x10.cve.v1.Affected\x12\x1b\n\x05risks\x18\x06 \x03(\x0b\x32\x0c.cve.v1.Risk\x12#\n\tproviders\x18\x07 \x03(\x0b\x32\x10.cve.v1.Provider\x12\x31\n\rdate_reserved\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x32\n\x0e\x64\x61te_published\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0c\x64\x61te_updated\x18\n \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\ncreated_at\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nupdated_at\x18\x0c \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"I\n\x08\x41\x66\x66\x65\x63ted\x12\x0e\n\x06vendor\x18\x01 \x01(\t\x12\x0f\n\x07product\x18\x02 \x01(\t\x12\x0f\n\x07version\x18\x03 \x01(\t\x12\x0b\n\x03\x63pe\x18\x04 \x03(\t\"@\n\x04Risk\x12)\n\x0c\x63vss_version\x18\x01 \x01(\x0e\x32\x13.cve.v1.CVSSVersion\x12\r\n\x05value\x18\x02 \x01(\x02\"%\n\x08Provider\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0b\n\x03url\x18\x02 \x01(\t*1\n\x0b\x43VSSVersion\x12\x07\n\x03V20\x10\x00\x12\x07\n\x03V30\x10\x01\x12\x07\n\x03V31\x10\x02\x12\x07\n\x03V40\x10\x03\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'cve.v1.message_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_CVSSVERSION']._serialized_start=1308
-  _globals['_CVSSVERSION']._serialized_end=1357
+  _globals['_CVSSVERSION']._serialized_start=1322
+  _globals['_CVSSVERSION']._serialized_end=1371
   _globals['_GETCHECKPOINTREQUEST']._serialized_start=65
   _globals['_GETCHECKPOINTREQUEST']._serialized_end=103
   _globals['_GETCHECKPOINTRESPONSE']._serialized_start=105
@@ -51,15 +51,15 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_ADDENTRIESRESPONSE']._serialized_start=519
   _globals['_ADDENTRIESRESPONSE']._serialized_end=539
   _globals['_LISTCVESREQUEST']._serialized_start=541
-  _globals['_LISTCVESREQUEST']._serialized_end=652
-  _globals['_LISTCVESRESPONSE']._serialized_start=654
-  _globals['_LISTCVESRESPONSE']._serialized_end=699
-  _globals['_CVE']._serialized_start=702
-  _globals['_CVE']._serialized_end=1126
-  _globals['_AFFECTED']._serialized_start=1128
-  _globals['_AFFECTED']._serialized_end=1201
-  _globals['_RISK']._serialized_start=1203
-  _globals['_RISK']._serialized_end=1267
-  _globals['_PROVIDER']._serialized_start=1269
-  _globals['_PROVIDER']._serialized_end=1306
+  _globals['_LISTCVESREQUEST']._serialized_end=666
+  _globals['_LISTCVESRESPONSE']._serialized_start=668
+  _globals['_LISTCVESRESPONSE']._serialized_end=713
+  _globals['_CVE']._serialized_start=716
+  _globals['_CVE']._serialized_end=1140
+  _globals['_AFFECTED']._serialized_start=1142
+  _globals['_AFFECTED']._serialized_end=1215
+  _globals['_RISK']._serialized_start=1217
+  _globals['_RISK']._serialized_end=1281
+  _globals['_PROVIDER']._serialized_start=1283
+  _globals['_PROVIDER']._serialized_end=1320
 # @@protoc_insertion_point(module_scope)
