@@ -7,7 +7,7 @@ Calls CVECollectorServicer.CollectCVEs and returns the workflow_id.
 import grpc
 from google.protobuf.timestamp_pb2 import Timestamp
 
-from src.contracts.gRPC.cve.v1.message_pb2 import CollectCVEsRequest
+from src.contracts.gRPC.cve.v1.message_pb2 import CollectCVEsRequest  # type: ignore[attr-defined]
 from src.contracts.gRPC.cve.v1.service_pb2_grpc import CVECollectorServicerStub
 from src.core.ports import CollectionResult
 

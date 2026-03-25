@@ -15,7 +15,7 @@ from temporalio.client import (
 )
 
 from src.config import settings
-from src.contracts.gRPC.cve.v1.message_pb2 import CollectCVEsRequest
+from src.contracts.gRPC.cve.v1.message_pb2 import CollectCVEsRequest  # type: ignore[attr-defined]
 from src.core.ports import ScheduleInfo
 
 
@@ -70,7 +70,7 @@ class TemporalSchedulerAdapter:
                 cron = spec.cron_expressions[0]
 
             next_run: str | None = None
-            if entry.info.next_action_times:
+            if entry.info and entry.info.next_action_times:
                 next_run = entry.info.next_action_times[0].isoformat()
 
             result.append(
