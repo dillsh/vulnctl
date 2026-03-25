@@ -42,7 +42,7 @@ schedule_app = typer.Typer(
     help="Manage Temporal Schedules for recurring CVE collection.",
     no_args_is_help=True,
 )
-app.add_typer(schedule_app, name="schedule")
+app.add_typer(schedule_app, name="schedule", hidden=True)
 
 cve_app = typer.Typer(
     help="Query CVEs from cve-core.",
@@ -79,7 +79,7 @@ async def _create_temporal_client():
 # ---------------------------------------------------------------------------
 
 
-@app.command()
+@app.command(hidden=True)
 def collect(
     since: str = typer.Option(..., help="Start date (ISO 8601), e.g. 2024-01-01"),
     until: Optional[str] = typer.Option(
@@ -270,7 +270,7 @@ def _save_cves(cves, output: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-@cve_app.command("list")
+@cve_app.command("list", hidden=True)
 def cve_list(
     since: str = typer.Option(
         ..., "--since", help='Start date (ISO 8601), e.g. "2024-01-01"'
