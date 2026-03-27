@@ -55,9 +55,16 @@ Without `--output`: prints a table with CVE ID, Status, Title, Affected products
 
 With `--output`:
 - **`.json`** — array of CVE objects with all fields, including nested `affected` list
-- **`.csv`** — one row per CVE; `affected` column is a flattened `vendor/product:version` string
+- **`.csv`** — one row per CVE; `affected` column is a flattened `vendor/product` string
 
 Each entry in `affected` contains:
+
+| Field | Description |
+|---|---|
+| `vendor` | Vendor name |
+| `product` | Product name |
+| `version` | Affected version string |
+| `cpe` | List of CPE 2.3 identifiers |
 
 ---
 
@@ -94,22 +101,51 @@ vulnctl cve list --since 2024-01-01 --until 2024-06-30
 | `--since` | Yes | Start date (ISO 8601) |
 | `--until` | No | End date (ISO 8601) |
 
-#### `collect` — trigger a one-off CVE collection
+#### `cve collect` — trigger a one-off CVE collection
 
 ```bash
-vulnctl collect --since 2024-01-01
-vulnctl collect --since 2024-01-01 --until 2024-06-30
+vulnctl cve collect --since 2024-01-01
+vulnctl cve collect --since 2024-01-01 --until 2024-06-30
 ```
 
-#### `schedule` — manage recurring collection schedules
+#### `cve schedule` — create a recurring CVE collection schedule
 
 ```bash
-vulnctl schedule create --schedule-id daily-cve-collection --cron "0 6 * * *"
+vulnctl cve schedule $SCHEDULE_NAME                    # default --cron "0 6 * * *"
+vulnctl cve schedule $SCHEDULE_NAME --cron "0 10 * * *"
+```
+
+| Argument / Option | Required | Description |
+|---|---|---|
+| `SCHEDULE_NAME` | Yes | Unique schedule name in Temporal |
+| `--cron` | No | Cron expression (UTC). Default: `0 6 * * *` |
+
+Each scheduled run resolves the collection window automatically via the checkpoint stored in cve-core.
+
+#### `cpe sync` — trigger a one-off NVD CPE dictionary sync
+
+```bash
+vulnctl cpe sync
+```
+
+#### `cpe schedule` — create a recurring CPE dictionary sync schedule
+
+```bash
+vulnctl cpe schedule $SCHEDULE_NAME                    # default --cron "0 3 * * *"
+vulnctl cpe schedule $SCHEDULE_NAME --cron "0 5 * * *"
+```
+
+| Argument / Option | Required | Description |
+|---|---|---|
+| `SCHEDULE_NAME` | Yes | Unique schedule name in Temporal |
+| `--cron` | No | Cron expression (UTC). Default: `0 3 * * *` |
+
+#### `schedule list` / `schedule delete` — manage all schedules
+
+```bash
 vulnctl schedule list
-vulnctl schedule delete daily-cve-collection
+vulnctl schedule delete $SCHEDULE_NAME
 ```
-
-Each scheduled run uses the checkpoint stored in cve-core to determine the collection window automatically.
 
 ### Running locally
 
@@ -160,7 +196,7 @@ vulnctl is part of the Docker Compose stack in [cve-project](https://github.com/
 ```bash
 # from cve-project/
 docker compose run --rm vulnctl cve last
-docker compose run --rm vulnctl collect --since 2024-01-01
+docker compose run --rm vulnctl cve collect --since 2024-01-01
 docker compose run --rm vulnctl --help
 ```
 

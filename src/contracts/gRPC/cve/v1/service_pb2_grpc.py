@@ -54,6 +54,11 @@ class CVEServiceServicerStub(object):
                 request_serializer=cve_dot_v1_dot_message__pb2.SetCheckpointRequest.SerializeToString,
                 response_deserializer=cve_dot_v1_dot_message__pb2.SetCheckpointResponse.FromString,
                 _registered_method=True)
+        self.UpsertCPEBatch = channel.unary_unary(
+                '/cve.v1.CVEServiceServicer/UpsertCPEBatch',
+                request_serializer=cve_dot_v1_dot_message__pb2.UpsertCPEBatchRequest.SerializeToString,
+                response_deserializer=cve_dot_v1_dot_message__pb2.UpsertCPEBatchResponse.FromString,
+                _registered_method=True)
 
 
 class CVEServiceServicerServicer(object):
@@ -83,6 +88,12 @@ class CVEServiceServicerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def UpsertCPEBatch(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_CVEServiceServicerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -105,6 +116,11 @@ def add_CVEServiceServicerServicer_to_server(servicer, server):
                     servicer.SetCheckpoint,
                     request_deserializer=cve_dot_v1_dot_message__pb2.SetCheckpointRequest.FromString,
                     response_serializer=cve_dot_v1_dot_message__pb2.SetCheckpointResponse.SerializeToString,
+            ),
+            'UpsertCPEBatch': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpsertCPEBatch,
+                    request_deserializer=cve_dot_v1_dot_message__pb2.UpsertCPEBatchRequest.FromString,
+                    response_serializer=cve_dot_v1_dot_message__pb2.UpsertCPEBatchResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -215,6 +231,33 @@ class CVEServiceServicer(object):
             '/cve.v1.CVEServiceServicer/SetCheckpoint',
             cve_dot_v1_dot_message__pb2.SetCheckpointRequest.SerializeToString,
             cve_dot_v1_dot_message__pb2.SetCheckpointResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpsertCPEBatch(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cve.v1.CVEServiceServicer/UpsertCPEBatch',
+            cve_dot_v1_dot_message__pb2.UpsertCPEBatchRequest.SerializeToString,
+            cve_dot_v1_dot_message__pb2.UpsertCPEBatchResponse.FromString,
             options,
             channel_credentials,
             insecure,

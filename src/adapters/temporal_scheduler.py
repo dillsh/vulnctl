@@ -2,7 +2,7 @@
 TemporalSchedulerAdapter — implements SchedulerPort via Temporal Schedules API.
 
 Creates / lists / deletes Temporal Schedules that periodically trigger
-CVECollectorWorkflow on the cve-collector task queue.
+CVECollectorWorkflow or SyncCPEDictionaryWorkflow on the cve-collector task queue.
 """
 
 from temporalio.client import (
@@ -34,7 +34,7 @@ class TemporalSchedulerAdapter:
         checkpoint stored in cve-core (start_time=0 → read checkpoint).
 
         Args:
-            schedule_id: Unique schedule identifier in Temporal.
+            schedule_id: Unique schedule name in Temporal.
             cron:        Standard cron expression (UTC), e.g. "0 6 * * *".
         """
         await self._client.create_schedule(
@@ -82,7 +82,27 @@ class TemporalSchedulerAdapter:
             )
         return result
 
+    async def create_cpe_sync(self, schedule_id: str, cron: str) -> None:
+        """
+        Create a Temporal Schedule that starts SyncCPEDictionaryWorkflow on `cron`.
+
+        The workflow takes no arguments — it resolves the sync window itself
+        via the "nvd-cpe" checkpoint stored in cve-core.
+        """
+        await self._client.create_schedule(
+            id=schedule_id,
+            schedule=Schedule(
+                action=ScheduleActionStartWorkflow(
+                    "SyncCPEDictionaryWorkflow",
+                    id=f"sync-cpe-{schedule_id}",
+                    task_queue=settings.collector_task_queue,
+                ),
+                spec=ScheduleSpec(cron_expressions=[cron]),
+                policy=SchedulePolicy(overlap=ScheduleOverlapPolicy.SKIP),
+            ),
+        )
+
     async def delete(self, schedule_id: str) -> None:
-        """Delete a Temporal Schedule by its ID."""
+        """Delete a Temporal Schedule by name."""
         handle = self._client.get_schedule_handle(schedule_id)
         await handle.delete()
