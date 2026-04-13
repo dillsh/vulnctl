@@ -13,6 +13,7 @@ admin mode (requires API key):
     uv run python -m src.cli.main cve list --since 2026-01-01
     uv run python -m src.cli.main cve list --since 2026-01-01 --until 2026-03-02
     uv run python -m src.cli.main cve collect --since 2026-01-01
+    uv run python -m src.cli.main cve collect --since 2026-01-01 --until 2026-01-02
     uv run python -m src.cli.main cve schedule $SCHEDULE_NAME # default --cron "0 6 * * *"
     uv run python -m src.cli.main cve schedule $SCHEDULE_NAME --cron "0 10 * * *"
 
