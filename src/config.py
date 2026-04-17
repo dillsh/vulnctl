@@ -13,40 +13,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Application settings."""
 
-    # Temporal settings
-    temporal_host: str = Field(default="localhost", description="Temporal server host")
-    temporal_port: int = Field(default=7233, description="Temporal server port")
-
-    # cve-collector gRPC client settings
-    collector_grpc_host: str = Field(
-        default="localhost", description="cve-collector gRPC host"
-    )
-    collector_grpc_port: int = Field(
-        default=50052, description="cve-collector gRPC port"
-    )
-
-    # cve-core gRPC client settings
-    cve_core_grpc_host: str = Field(
-        default="localhost", description="cve-core gRPC host"
-    )
-    cve_core_grpc_port: int = Field(default=50051, description="cve-core gRPC port")
-
-    # cve-core REST client settings
+    # cve-core REST client settings (used by cve last)
     cve_core_http_host: str = Field(
         default="localhost", description="cve-core REST host"
     )
     cve_core_http_port: int = Field(default=8080, description="cve-core REST port")
-
-    # Temporal: task queue where CVECollectorWorkflow is registered
-    collector_task_queue: str = Field(
-        default="cve-collector",
-        description="Temporal task queue of the cve-collector worker",
-    )
-
-    # Auth settings
-    api_key: str = Field(
-        default="", description="API key for gRPC calls (env: API_KEY)"
-    )
 
     # Application settings
     service_name: str = Field(default="vulnctl", description="Service name")
@@ -59,16 +30,6 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",
     )
-
-    @property
-    def collector_grpc_address(self) -> str:
-        """cve-collector gRPC address."""
-        return f"{self.collector_grpc_host}:{self.collector_grpc_port}"
-
-    @property
-    def cve_core_grpc_address(self) -> str:
-        """cve-core gRPC address."""
-        return f"{self.cve_core_grpc_host}:{self.cve_core_grpc_port}"
 
     @property
     def cve_core_http_base_url(self) -> str:

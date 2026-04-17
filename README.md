@@ -2,6 +2,8 @@
 
 CLI tool for monitoring CVE vulnerabilities.
 
+In progress, please wait...
+
 ```bash
 # See CVEs from the last 24 hours
 ./vulnctl cve last
