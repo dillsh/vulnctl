@@ -78,8 +78,8 @@ To point at a custom instance, set environment variables (or a `.env` file):
 
 | Variable | Default | Description |
 |---|---|---|
-| `CVE_CORE_GRPC_HOST` | _(baked in at build time)_ | cve-core gRPC host |
-| `CVE_CORE_GRPC_PORT` | `8080` | cve-core gRPC port |
+| `CVE_CORE_HTTP_HOST` | _(baked in at build time)_ | cve-core REST host |
+| `CVE_CORE_HTTP_PORT` | `8080` | cve-core REST port |
 
 ---
 
@@ -173,15 +173,9 @@ All settings are loaded from environment variables (or a `.env` file).
 
 | Variable | Default | Description |
 |---|---|---|
-| `CVE_CORE_GRPC_HOST` | `localhost` | cve-core gRPC host |
-| `CVE_CORE_GRPC_PORT` | `50051` | cve-core gRPC port |
-| `TEMPORAL_HOST` | `localhost` | Temporal server host |
-| `TEMPORAL_PORT` | `7233` | Temporal server port |
-| `COLLECTOR_GRPC_HOST` | `localhost` | cve-collector gRPC host |
-| `COLLECTOR_GRPC_PORT` | `50052` | cve-collector gRPC port |
-| `COLLECTOR_TASK_QUEUE` | `cve-collector` | Temporal task queue |
-| `API_KEY` | `""` | Admin API key |
-| `LOG_LEVEL` | `INFO` | Logging level |
+| `CVE_CORE_HTTP_HOST` | `localhost` | cve-core REST host |
+| `CVE_CORE_HTTP_PORT` | `8080` | cve-core REST port |
+| `LOG_LEVEL` | `INFO` | Logging level (`DEBUG` / `INFO` / `WARNING` / `ERROR` / `CRITICAL`) |
 | `ENVIRONMENT` | `development` | `development` / `staging` / `production` / `test` |
 
 #### 4. Run
