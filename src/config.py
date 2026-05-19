@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     @field_validator("log_level")
     @classmethod
     def validate_log_level(cls, v: str) -> str:
-        allowed = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
+        allowed = {"DEBUG", "DEBUG_QUIET", "INFO", "WARNING", "ERROR", "CRITICAL"}
         if v.upper() not in allowed:
             raise ValueError(f"log_level must be one of {allowed}")
         return v.upper()
