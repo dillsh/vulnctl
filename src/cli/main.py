@@ -174,8 +174,9 @@ async def _cve_last(days: int, output: Optional[Path]) -> None:
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
+    effective_level = "DEBUG" if settings.log_level == "DEBUG_QUIET" else settings.log_level
     logging.basicConfig(
-        level=settings.log_level,
+        level=effective_level,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
     app()
